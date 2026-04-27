@@ -76,12 +76,7 @@ jobs:
 
           async function postToFacebook(caption) {
             console.log('--- Posting to Facebook ---');
-            // We first get the Page Access Token using the User Token
-            const tokenRes = await fetch('https://graph.facebook.com/v20.0/' + FB_PAGE_ID + '?fields=access_token&access_token=' + FB_ACCESS_TOKEN);
-            const tokenData = await tokenRes.json();
-            const pageToken = tokenData.access_token || FB_ACCESS_TOKEN;
-
-            const res = await fetch('https://graph.facebook.com/v20.0/' + FB_PAGE_ID + '/photos?url=' + encodeURIComponent(IMAGE_URL) + '&caption=' + encodeURIComponent(caption) + '&access_token=' + pageToken, { method: 'POST' });
+            const res = await fetch('https://graph.facebook.com/v20.0/' + FB_PAGE_ID + '/photos?url=' + encodeURIComponent(IMAGE_URL) + '&caption=' + encodeURIComponent(caption) + '&access_token=' + FB_ACCESS_TOKEN, { method: 'POST' });
             const data = await res.json();
             if (data.error) throw new Error('FB Post: ' + JSON.stringify(data.error));
             console.log('FB Post Success!');
