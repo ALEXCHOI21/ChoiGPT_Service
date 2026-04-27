@@ -94,6 +94,7 @@
                 <a href="#services">Services</a>
                 <a href="#portfolio">Case Studies</a>
                 <a href="#strategy">Strategy</a>
+                <a href="#contact">Contact</a>
             </div>
         </div>
     </nav>
@@ -207,6 +208,63 @@
                     </div>
                     <div class="project-image-container">
                         <img src="lilypad.png" alt="LilyPad Fashion AI" class="project-image">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact">
+            <div class="container">
+                <div style="text-align: center; margin-bottom: 4rem;">
+                    <span class="section-tag">Get In Touch</span>
+                    <h2 class="hero-title" style="font-size: 3rem;">프로젝트 <span class="gradient-text">문의하기</span></h2>
+                    <p class="hero-subtitle">공모전 지원부터 맞춤형 솔루션 개발까지, ChoiGPT Corp.이 당신의 혁신 파트너가 되어드립니다.</p>
+                </div>
+
+                <div class="project-grid" style="align-items: start;">
+                    <div class="glass-card">
+                        <h3 style="margin-bottom: 2rem;">문의 정보</h3>
+                        <ul class="feature-list" style="margin-top: 0;">
+                            <li><strong>Email</strong>: alexchoi21@gmail.com</li>
+                            <li><strong>Location</strong>: Republic of Korea</li>
+                            <li><strong>Hours</strong>: 24/7 AI-Driven Support</li>
+                        </ul>
+                        <div style="margin-top: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <a href="mailto:alexchoi21@gmail.com" class="cta-button" style="padding: 0.8rem 1.5rem; font-size: 0.9rem;">이메일 보내기</a>
+                            <a href="https://open.kakao.com/o/sChoiGPT" target="_blank" class="cta-button" style="padding: 0.8rem 1.5rem; font-size: 0.9rem; background: #fee500; color: #3c1e1e; box-shadow: none;">카카오톡 상담</a>
+                        </div>
+                    </div>
+
+                    <div class="glass-card">
+                        <form id="inquiry-form">
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">성함 / 팀명</label>
+                                <input type="text" placeholder="홍길동" style="width: 100%; padding: 1rem; border-radius: 12px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: white; outline: none;" required>
+                            </div>
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">연락처 (이메일 또는 전화번호)</label>
+                                <input type="text" placeholder="example@gmail.com" style="width: 100%; padding: 1rem; border-radius: 12px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: white; outline: none;" required>
+                            </div>
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">문의 분야</label>
+                                <select style="width: 100%; padding: 1rem; border-radius: 12px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: white; outline: none; appearance: none;">
+                                    <option value="dev">HW/SW 개발 문의</option>
+                                    <option value="edu">교육 프로그램 문의</option>
+                                    <option value="contest">공모전 전략 지원 문의</option>
+                                    <option value="other">기타 비즈니스 협업</option>
+                                </select>
+                            </div>
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">상세 내용</label>
+                                <textarea rows="4" placeholder="문의하실 내용을 입력해 주세요." style="width: 100%; padding: 1rem; border-radius: 12px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: white; outline: none; resize: none;" required></textarea>
+                            </div>
+                            <button type="submit" class="cta-button" style="width: 100%; border: none; cursor: pointer;">문의 신청 완료</button>
+                        </form>
+                        <div id="form-success" style="display: none; text-align: center; padding: 2rem;">
+                            <h3 class="gradient-text">문의가 성공적으로 전달되었습니다!</h3>
+                            <p style="margin-top: 1rem;">ChoiGPT 전략팀에서 신속하게 검토 후 연락드리겠습니다.</p>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }, observerOptions);
 
     // Elements to animate
-    const animateElements = document.querySelectorAll('.project-grid, .glass-card, .section-tag');
+    const animateElements = document.querySelectorAll('.project-grid, .glass-card, .section-tag, .service-item');
     animateElements.forEach(el => {
         el.style.opacity = '0';
         observer.observe(el);
@@ -45,4 +45,20 @@ document.addEventListener('DOMContentLoaded', () => {
             nav.style.backgroundColor = 'rgba(10, 11, 16, 0.8)';
         }
     });
+
+    // Handle Inquiry Form Submission
+    const inquiryForm = document.getElementById('inquiry-form');
+    const formSuccess = document.getElementById('form-success');
+
+    if (inquiryForm) {
+        inquiryForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Simulate API call
+            inquiryForm.style.display = 'none';
+            formSuccess.style.display = 'block';
+            
+            // Scroll to the success message
+            formSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+    }
 });
