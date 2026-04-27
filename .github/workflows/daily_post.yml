@@ -39,16 +39,7 @@ jobs:
           async function generateCaption(theme) {
             const prompt = '스타트업 ChoiGPT의 인스타그램/페이스북 홍보 문구를 작성해줘. 주제: ' + theme + '. 조건: 한국어, 매우 전문적이고 세련된 비즈니스 톤, 적절한 이모지 사용, 가독성 좋은 리스트 형식 포함, 마지막에 관련 해시태그 15개 포함. 클릭을 유도하는 매력적인 문구로 작성해줘.';
             
-            // Debug: Check which models are actually available to this API key
-            try {
-              const modelsRes = await fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + process.env.GEMINI_API_KEY);
-              const modelsData = await modelsRes.json();
-              console.log('Available Models for this API Key:', JSON.stringify(modelsData.models?.map(m => m.name), null, 2));
-            } catch (e) {
-              console.error('Failed to list models:', e);
-            }
-
-            const res = await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=' + process.env.GEMINI_API_KEY, {
+            const res = await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=' + process.env.GEMINI_API_KEY, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
