@@ -1,0 +1,42 @@
+name: Daily Instagram Post
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # 매일 한국 시간 오전 9시 (UTC 00:00)
+  workflow_dispatch: # 수동 실행 가능
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Run Auto Post Script
+        env:
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          IMAGE_URL: 'https://raw.githubusercontent.com/ALEXCHOI21/ChoiGPT_Service/main/sns_promotion_image.png'
+        run: |
+          node -e "
+          const CAPTION = '🚀 AI와 하드웨어의 혁신, ChoiGPT가 함께합니다.\n\n매일 진화하는 기술력을 지금 확인하세요.\n\n🔗 https://alexchoi21.github.io/ChoiGPT_Service/';
+          async function post() {
+            const containerRes = await fetch('https://graph.instagram.com/v20.0/' + process.env.IG_USER_ID + '/media?image_url=' + encodeURIComponent(process.env.IMAGE_URL) + '&caption=' + encodeURIComponent(CAPTION) + '&access_token=' + process.env.IG_ACCESS_TOKEN, { method: 'POST' });
+            const containerData = await containerRes.json();
+            if (containerData.error) throw new Error(JSON.stringify(containerData.error));
+            
+            console.log('Container created, waiting 30s...');
+            await new Promise(r => setTimeout(r, 30000));
+            
+            const pubRes = await fetch('https://graph.instagram.com/v20.0/' + process.env.IG_USER_ID + '/media_publish?creation_id=' + containerData.id + '&access_token=' + process.env.IG_ACCESS_TOKEN, { method: 'POST' });
+            const pubData = await pubRes.json();
+            if (pubData.error) throw new Error(JSON.stringify(pubData.error));
+            console.log('SUCCESS! Post ID: ' + pubData.id);
+          }
+          post().catch(e => { console.error(e); process.exit(1); });
+          "
