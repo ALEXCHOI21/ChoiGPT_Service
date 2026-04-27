@@ -43,10 +43,11 @@ jobs:
           const FB_ACCESS_TOKEN = (process.env.FB_ACCESS_TOKEN || '').trim();
 
           async function generateContent(theme) {
-            const prompt = `스타트업 ChoiGPT 홍보를 위해 다음 주제에 대한 콘텐츠를 생성해줘. 주제: ${theme}
+            const prompt = `스타트업 ChoiGPT 홍보를 위해 다음 주제에 대한 콘텐츠를 플랫폼별로 최적화하여 생성해줘. 주제: ${theme}
             응답은 반드시 아래 JSON 형식으로만 출력해 (마크다운 없이 순수 JSON만):
             {
-              "caption": "인스타그램/페이스북 홍보 문구 (한국어, 전문적, 이모지 포함, 리스트 형식, 해시태그 15개)",
+              "ig_caption": "인스타그램용 문구 (감성적, 이모지 풍부, 짧고 강렬한 문체, 트렌디한 감성, 해시태그 20개 포함)",
+              "fb_caption": "페이스북용 문구 (정보 전달 중심, 전문적인 비즈니스 톤, 가독성 좋은 리스트 형식, 신뢰감 주는 문체, 링크 클릭 유도)",
               "imagePrompt": "고품질 실사 이미지를 위한 영문 프롬프트 (English, cinematic, high-tech, 8k, professional photography style, futuristic business aesthetic)"
             }`;
             
@@ -89,18 +90,18 @@ jobs:
             const theme = themes[Math.floor(Math.random() * themes.length)];
             console.log('Selected Theme:', theme);
             
-            const { caption, imagePrompt } = await generateContent(theme);
+            const { ig_caption, fb_caption, imagePrompt } = await generateContent(theme);
             const seed = Math.floor(Math.random() * 1000000);
             const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=1080&height=1080&nologo=true&seed=${seed}`;
             console.log('Generated Image URL:', imageUrl);
 
-            const finalCaption = caption + '\n\n🔗 포털: https://alexchoi21.github.io/ChoiGPT_Service/\n💬 문의: https://open.kakao.com/o/syhiQlsi';
+            const footer = '\n\n🔗 포털: https://alexchoi21.github.io/ChoiGPT_Service/\n💬 문의: https://open.kakao.com/o/syhiQlsi';
 
             await Promise.all([
-              postToInstagram(finalCaption, imageUrl),
-              postToFacebook(finalCaption, imageUrl)
+              postToInstagram(ig_caption + footer, imageUrl),
+              postToFacebook(fb_caption + footer, imageUrl)
             ]);
-            console.log('ALL CHANNELS POSTED SUCCESSFULLY!');
+            console.log('ALL CHANNELS POSTED SUCCESSFULLY WITH PLATFORM-SPECIFIC CONTENT!');
           }
 
           run().catch(e => { console.error(e); process.exit(1); });
