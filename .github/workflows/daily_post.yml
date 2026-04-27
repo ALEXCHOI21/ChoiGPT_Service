@@ -1,8 +1,8 @@
-name: 2-Hour Loop SNS Promotion (Premium v3.0)
+name: Autonomous Gemini SNS Agent (v4.0)
 
 on:
   schedule:
-    - cron: '0 */2 * * *' # 2시간마다 실행 (02:00, 04:00, ..., 00:00 UTC)
+    - cron: '0 */2 * * *' # 2시간마다 실행
   workflow_dispatch: # 수동 실행 가능
 
 jobs:
@@ -17,39 +17,41 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Run Auto Post Script
+      - name: Run Autonomous Post Script
         env:
           IG_USER_ID: ${{ secrets.IG_USER_ID }}
           IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           IMAGE_URL: 'https://raw.githubusercontent.com/ALEXCHOI21/ChoiGPT_Service/main/sns_promotion_image.png'
         run: |
           node -e "
           const themes = [
-            {
-              title: '🚀 당신의 아이디어를 현실로! ChoiGPT Corp. 통합 포털 OPEN!',
-              content: 'AI 에이전트와 하드웨어의 혁신적 융합, 이제 한 곳에서 확인하세요. 🛠️✨\n\n💎 ChoiGPT만의 4가지 핵심 가치\n1️⃣ AI 기반 HW/SW 고속 개발\n2️⃣ 실전 아두이노 & 릴리패드 창의 교육\n3️⃣ 생산성을 10배 높이는 GenAI 실무 워크숍\n4️⃣ 공모전 완벽 전략 지원'
-            },
-            {
-              title: '💡 초고속 프로토타이핑, AI 에이전트와 함께라면 가능합니다.',
-              content: '아이디어 구상부터 실물 제작까지, 기술적 장벽을 ChoiGPT가 해결해 드립니다. 🤖🔌\n\n✅ 비즈니스 자동화 솔루션\n✅ 맞춤형 임베디드 시스템 설계\n✅ 창의적인 하드웨어 아키텍처'
-            },
-            {
-              title: '🏆 공모전 필승 전략, ChoiGPT가 기획부터 제작까지 밀착 지원합니다.',
-              content: '차별화된 기술력으로 공모전의 수준을 한 단계 높이세요. 🥇\n\n✨ 최신 AI 트렌드 반영\n✨ 동작 가능한 프로토타입 제작\n✨ 전문적인 기술 멘토링'
-            },
-            {
-              title: '🎓 미래를 만드는 코딩 교육, ChoiGPT의 맞춤형 커리큘럼을 만나보세요.',
-              content: '단순한 코딩을 넘어, 하드웨어를 직접 제어하는 실전 교육을 제공합니다. 💻🔋\n\n🔹 아두이노/릴리패드 특화 교육\n🔹 초중고 AI 창의 경진대회 대비\n🔹 실무 중심의 하드웨어 프로그래밍'
-            }
+            'ChoiGPT의 AI 기반 HW/SW 고속 개발 서비스 홍보',
+            '실전 아두이노 및 릴리패드 창의 교육 프로그램 홍보',
+            '생산성을 10배 높이는 생성형 AI 실무 워크숍 홍보',
+            '전국 청소년 AI 창의 경진대회 및 공모전 전략 지원 서비스 홍보',
+            '혁신적인 하드웨어 아키텍처와 임베디드 시스템 설계 전문성 강조'
           ];
 
-          const selected = themes[Math.floor(Math.random() * themes.length)];
-          const hashtags = '\n\n#ChoiGPT #AI에이전트 #하드웨어교육 #아두이노 #릴리패드 #웨어러블테크 #공모전준비 #생성형AI #대전AI #기술컨설팅 #스타트업 #비즈니스자동화';
-          const link = '\n\n🔗 포털: https://alexchoi21.github.io/ChoiGPT_Service/\n💬 상담: https://open.kakao.com/o/syhiQlsi';
-          
-          const finalCaption = selected.title + '\n\n' + selected.content + link + hashtags;
+          async function generateCaption(theme) {
+            const prompt = '스타트업 ChoiGPT의 인스타그램 홍보 문구를 작성해줘. 주제: ' + theme + '. 조건: 한국어, 매우 전문적이고 세련된 비즈니스 톤, 적절한 이모지 사용, 가독성 좋은 리스트 형식 포함, 마지막에 관련 해시태그 15개 포함. 인스타그램 게시용이므로 매력적으로 작성해줘.';
+            
+            const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + process.env.GEMINI_API_KEY, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            });
+            const data = await res.json();
+            return data.candidates[0].content.parts[0].text;
+          }
 
           async function post() {
+            const theme = themes[Math.floor(Math.random() * themes.length)];
+            console.log('Target Theme:', theme);
+            
+            const caption = await generateCaption(theme);
+            const finalCaption = caption + '\n\n🔗 포털: https://alexchoi21.github.io/ChoiGPT_Service/\n💬 카톡: https://open.kakao.com/o/syhiQlsi';
+
             const containerRes = await fetch('https://graph.instagram.com/v20.0/' + process.env.IG_USER_ID + '/media?image_url=' + encodeURIComponent(process.env.IMAGE_URL) + '&caption=' + encodeURIComponent(finalCaption) + '&access_token=' + process.env.IG_ACCESS_TOKEN, { method: 'POST' });
             const containerData = await containerRes.json();
             if (containerData.error) throw new Error(JSON.stringify(containerData.error));
@@ -60,7 +62,7 @@ jobs:
             const pubRes = await fetch('https://graph.instagram.com/v20.0/' + process.env.IG_USER_ID + '/media_publish?creation_id=' + containerData.id + '&access_token=' + process.env.IG_ACCESS_TOKEN, { method: 'POST' });
             const pubData = await pubRes.json();
             if (pubData.error) throw new Error(JSON.stringify(pubData.error));
-            console.log('SUCCESS! Post ID: ' + pubData.id);
+            console.log('SUCCESS! Post Published by Gemini.');
           }
           post().catch(e => { console.error(e); process.exit(1); });
           "
