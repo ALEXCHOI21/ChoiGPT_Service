@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://alexchoi21.github.io/ChoiGPT_Service/sitemap.xml
