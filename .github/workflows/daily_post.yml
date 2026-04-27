@@ -27,20 +27,20 @@ jobs:
           IMAGE_URL: 'https://alexchoi21.github.io/ChoiGPT_Service/customer_lite_infographic.png'
         run: |
           node -e "
+          const baseUrl = 'https://alexchoi21.github.io/ChoiGPT_Service/';
           const themes = [
-            'ChoiGPT의 AI 기반 HW/SW 고속 개발 서비스 홍보',
-            '실전 아두이노 및 릴리패드 창의 교육 프로그램 홍보',
-            '생산성을 10배 높이는 생성형 AI 실무 워크숍 홍보',
-            '전국 청소년 AI 창의 경진대회 및 공모전 전략 지원 서비스 홍보',
-            '혁신적인 하드웨어 아키텍처와 임베디드 시스템 설계 전문성 강조',
-            '24시간 자율형 AI 마케팅 에이전트 서비스 도입 안내'
+            { text: 'ChoiGPT의 AI 기반 HW/SW 고속 개발 서비스 홍보', image: baseUrl + 'service_hero.png' },
+            { text: '실전 아두이노 및 릴리패드 창의 교육 프로그램 홍보', image: baseUrl + 'lilypad.png' },
+            { text: '생산성을 10배 높이는 생성형 AI 실무 워크숍 홍보', image: baseUrl + 'marketing_infographic.png' },
+            { text: '전국 청소년 AI 창의 경진대회 및 공모전 전략 지원 서비스 홍보', image: baseUrl + 'choigpt_sns_main_1777285500752.png' },
+            { text: '혁신적인 하드웨어 아키텍처와 임베디드 시스템 설계 전문성 강조', image: baseUrl + 'echoguard.png' },
+            { text: '24시간 자율형 AI 마케팅 에이전트 서비스 도입 안내', image: baseUrl + 'customer_lite_infographic.png' }
           ];
           const GEMINI_API_KEY = (process.env.GEMINI_API_KEY || '').trim();
           const IG_USER_ID = (process.env.IG_USER_ID || '').trim();
           const IG_ACCESS_TOKEN = (process.env.IG_ACCESS_TOKEN || '').trim();
           const FB_PAGE_ID = (process.env.FB_PAGE_ID || '').trim();
           const FB_ACCESS_TOKEN = (process.env.FB_ACCESS_TOKEN || '').trim();
-          const IMAGE_URL = (process.env.IMAGE_URL || '').trim();
 
 
           async function generateCaption(theme) {
@@ -59,9 +59,9 @@ jobs:
             return data.candidates[0].content.parts[0].text;
           }
 
-          async function postToInstagram(caption) {
+          async function postToInstagram(caption, imageUrl) {
             console.log('--- Posting to Instagram ---');
-            const containerRes = await fetch('https://graph.facebook.com/v20.0/' + IG_USER_ID + '/media?image_url=' + encodeURIComponent(IMAGE_URL) + '&caption=' + encodeURIComponent(caption) + '&access_token=' + IG_ACCESS_TOKEN, { method: 'POST' });
+            const containerRes = await fetch('https://graph.facebook.com/v20.0/' + IG_USER_ID + '/media?image_url=' + encodeURIComponent(imageUrl) + '&caption=' + encodeURIComponent(caption) + '&access_token=' + IG_ACCESS_TOKEN, { method: 'POST' });
             const containerData = await containerRes.json();
             if (containerData.error) throw new Error('IG Container: ' + JSON.stringify(containerData.error));
             
@@ -74,23 +74,23 @@ jobs:
             console.log('IG Post Success!');
           }
 
-          async function postToFacebook(caption) {
+          async function postToFacebook(caption, imageUrl) {
             console.log('--- Posting to Facebook ---');
-            const res = await fetch('https://graph.facebook.com/v20.0/' + FB_PAGE_ID + '/photos?url=' + encodeURIComponent(IMAGE_URL) + '&caption=' + encodeURIComponent(caption) + '&access_token=' + FB_ACCESS_TOKEN, { method: 'POST' });
+            const res = await fetch('https://graph.facebook.com/v20.0/' + FB_PAGE_ID + '/photos?url=' + encodeURIComponent(imageUrl) + '&caption=' + encodeURIComponent(caption) + '&access_token=' + FB_ACCESS_TOKEN, { method: 'POST' });
             const data = await res.json();
             if (data.error) throw new Error('FB Post: ' + JSON.stringify(data.error));
             console.log('FB Post Success!');
           }
 
           async function run() {
-            const theme = themes[Math.floor(Math.random() * themes.length)];
-            console.log('Selected Theme:', theme);
-            const caption = await generateCaption(theme);
+            const themeObj = themes[Math.floor(Math.random() * themes.length)];
+            console.log('Selected Theme:', themeObj.text);
+            const caption = await generateCaption(themeObj.text);
             const finalCaption = caption + '\n\n🔗 포털: https://alexchoi21.github.io/ChoiGPT_Service/\n💬 문의: https://open.kakao.com/o/syhiQlsi';
 
             await Promise.all([
-              postToInstagram(finalCaption),
-              postToFacebook(finalCaption)
+              postToInstagram(finalCaption, themeObj.image),
+              postToFacebook(finalCaption, themeObj.image)
             ]);
             console.log('ALL CHANNELS POSTED SUCCESSFULLY!');
           }
