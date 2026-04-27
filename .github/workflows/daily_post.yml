@@ -1,0 +1,93 @@
+name: Multi-Channel Gemini SNS Agent (v5.0)
+
+on:
+  schedule:
+    - cron: '0 */2 * * *' # 2시간마다 실행
+  workflow_dispatch: # 수동 실행 가능
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Run Multi-Channel Post Script
+        env:
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_ACCESS_TOKEN: ${{ secrets.FB_ACCESS_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          IMAGE_URL: 'https://raw.githubusercontent.com/ALEXCHOI21/ChoiGPT_Marketing_Engine/main/customer_lite_infographic.png'
+        run: |
+          node -e "
+          const themes = [
+            'ChoiGPT의 AI 기반 HW/SW 고속 개발 서비스 홍보',
+            '실전 아두이노 및 릴리패드 창의 교육 프로그램 홍보',
+            '생산성을 10배 높이는 생성형 AI 실무 워크숍 홍보',
+            '전국 청소년 AI 창의 경진대회 및 공모전 전략 지원 서비스 홍보',
+            '혁신적인 하드웨어 아키텍처와 임베디드 시스템 설계 전문성 강조',
+            '24시간 자율형 AI 마케팅 에이전트 서비스 도입 안내'
+          ];
+
+          async function generateCaption(theme) {
+            const prompt = '스타트업 ChoiGPT의 인스타그램/페이스북 홍보 문구를 작성해줘. 주제: ' + theme + '. 조건: 한국어, 매우 전문적이고 세련된 비즈니스 톤, 적절한 이모지 사용, 가독성 좋은 리스트 형식 포함, 마지막에 관련 해시태그 15개 포함. 클릭을 유도하는 매력적인 문구로 작성해줘.';
+            
+            const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + process.env.GEMINI_API_KEY, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            });
+            const data = await res.json();
+            return data.candidates[0].content.parts[0].text;
+          }
+
+          async function postToInstagram(caption) {
+            console.log('--- Posting to Instagram ---');
+            const containerRes = await fetch('https://graph.instagram.com/v20.0/' + process.env.IG_USER_ID + '/media?image_url=' + encodeURIComponent(process.env.IMAGE_URL) + '&caption=' + encodeURIComponent(caption) + '&access_token=' + process.env.IG_ACCESS_TOKEN, { method: 'POST' });
+            const containerData = await containerRes.json();
+            if (containerData.error) throw new Error('IG Container: ' + JSON.stringify(containerData.error));
+            
+            console.log('IG Container created, waiting 30s...');
+            await new Promise(r => setTimeout(r, 30000));
+            
+            const pubRes = await fetch('https://graph.instagram.com/v20.0/' + process.env.IG_USER_ID + '/media_publish?creation_id=' + containerData.id + '&access_token=' + process.env.IG_ACCESS_TOKEN, { method: 'POST' });
+            const pubData = await pubRes.json();
+            if (pubData.error) throw new Error('IG Publish: ' + JSON.stringify(pubData.error));
+            console.log('IG Post Success!');
+          }
+
+          async function postToFacebook(caption) {
+            console.log('--- Posting to Facebook ---');
+            // We first get the Page Access Token using the User Token
+            const tokenRes = await fetch('https://graph.facebook.com/v20.0/' + process.env.FB_PAGE_ID + '?fields=access_token&access_token=' + process.env.FB_ACCESS_TOKEN);
+            const tokenData = await tokenRes.json();
+            const pageToken = tokenData.access_token || process.env.FB_ACCESS_TOKEN;
+
+            const res = await fetch('https://graph.facebook.com/v20.0/' + process.env.FB_PAGE_ID + '/photos?url=' + encodeURIComponent(process.env.IMAGE_URL) + '&caption=' + encodeURIComponent(caption) + '&access_token=' + pageToken, { method: 'POST' });
+            const data = await res.json();
+            if (data.error) throw new Error('FB Post: ' + JSON.stringify(data.error));
+            console.log('FB Post Success!');
+          }
+
+          async function run() {
+            const theme = themes[Math.floor(Math.random() * themes.length)];
+            console.log('Selected Theme:', theme);
+            const caption = await generateCaption(theme);
+            const finalCaption = caption + '\n\n🔗 포털: https://alexchoi21.github.io/ChoiGPT_Service/\n💬 문의: https://open.kakao.com/o/syhiQlsi';
+
+            await Promise.all([
+              postToInstagram(finalCaption),
+              postToFacebook(finalCaption)
+            ]);
+            console.log('ALL CHANNELS POSTED SUCCESSFULLY!');
+          }
+
+          run().catch(e => { console.error(e); process.exit(1); });
+          "
