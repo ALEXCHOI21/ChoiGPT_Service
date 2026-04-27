@@ -44,9 +44,14 @@ jobs:
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
             });
-            const data = await res.json();
-            return data.candidates[0].content.parts[0].text;
-          }
+            const datconsconst data = await res.json(); data = await res.json();
+            if (data.error) throw new Error('Gemini API Error: ' + JSON.stringify(data.error));
+            if (!data.candidates || data.candidates.length === 0) {
+                console.error('Gemini API No Candidates:', JSON.stringify(data));
+                    throw new Error('Gemini API returned no candidates.');
+                    }
+                    return data.candidates[0].content.parts[0].text;
+                    
 
           async function postToInstagram(caption) {
             console.log('--- Posting to Instagram ---');
