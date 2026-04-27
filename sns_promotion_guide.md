@@ -15,7 +15,8 @@
 > 4️⃣ 공모전 완벽 전략 지원 (기획부터 프로토타입까지!)
 > 
 > 📍 대한민국 대전광역시 기반, 전국 어디서나!
-> 🔗 프로필 링크 확인: https://alexchoi21.github.io/ChoiGPT_Service/
+> 🔗 공식 홈페이지: https://alexchoi21.github.io/ChoiGPT_Service/
+> 💬 카톡 상담: https://open.kakao.com/o/syhiQlsi
 > 
 > #ChoiGPT #AI에이전트 #하드웨어교육 #아두이노 #릴리패드 #공모전준비 #생성형AI #디지털혁신 #대전AI #기술컨설팅
 
