@@ -61,14 +61,14 @@ jobs:
 
           async function postToInstagram(caption) {
             console.log('--- Posting to Instagram ---');
-            const containerRes = await fetch('https://graph.instagram.com/v20.0/' + IG_USER_ID + '/media?image_url=' + encodeURIComponent(IMAGE_URL) + '&caption=' + encodeURIComponent(caption) + '&access_token=' + IG_ACCESS_TOKEN, { method: 'POST' });
+            const containerRes = await fetch('https://graph.facebook.com/v20.0/' + IG_USER_ID + '/media?image_url=' + encodeURIComponent(IMAGE_URL) + '&caption=' + encodeURIComponent(caption) + '&access_token=' + IG_ACCESS_TOKEN, { method: 'POST' });
             const containerData = await containerRes.json();
             if (containerData.error) throw new Error('IG Container: ' + JSON.stringify(containerData.error));
             
             console.log('IG Container created, waiting 30s...');
             await new Promise(r => setTimeout(r, 30000));
             
-            const pubRes = await fetch('https://graph.instagram.com/v20.0/' + IG_USER_ID + '/media_publish?creation_id=' + containerData.id + '&access_token=' + IG_ACCESS_TOKEN, { method: 'POST' });
+            const pubRes = await fetch('https://graph.facebook.com/v20.0/' + IG_USER_ID + '/media_publish?creation_id=' + containerData.id + '&access_token=' + IG_ACCESS_TOKEN, { method: 'POST' });
             const pubData = await pubRes.json();
             if (pubData.error) throw new Error('IG Publish: ' + JSON.stringify(pubData.error));
             console.log('IG Post Success!');
