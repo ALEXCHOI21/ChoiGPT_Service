@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChoiGPT Corp. | Future-Proof AI & HW Solutions</title>
+    <meta name="description" content="HW/SW 개발, AI 교육, 공모전 지원까지. ChoiGPT Corp.은 AI 에이전트와 하드웨어 기술의 융합을 통해 차세대 비즈니스 솔루션을 제공합니다.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@400;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Service Grid Overrides */
+        .service-grid-5 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+        .service-grid-5 .service-item:nth-child(4),
+        .service-grid-5 .service-item:nth-child(5) {
+            grid-column: span 1.5; /* Centers the last two if 3 columns */
+        }
+        
+        @media (max-width: 968px) {
+            .service-grid-5 {
+                grid-template-columns: 1fr;
+            }
+            .service-grid-5 .service-item:nth-child(4),
+            .service-grid-5 .service-item:nth-child(5) {
+                grid-column: span 1;
+            }
+        }
+
+        .service-item {
+            position: relative;
+            padding: 3rem 2rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            text-align: center;
+            transition: var(--transition-smooth);
+            overflow: hidden;
+        }
+
+        .service-item::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transition: var(--transition-smooth);
+            z-index: -1;
+        }
+
+        .service-item:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent-blue);
+        }
+        
+        .service-item:hover::before {
+            opacity: 0.05;
+        }
+
+        .service-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .service-item h3 {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+        }
+
+        .service-item p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="container">
+            <a href="#" class="logo">ChoiGPT <span class="gradient-text">Corp.</span></a>
+            <div class="nav-links">
+                <a href="#hero">Home</a>
+                <a href="#services">Services</a>
+                <a href="#portfolio">Case Studies</a>
+                <a href="#strategy">Strategy</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="hero">
+            <div class="container project-grid">
+                <div class="hero-content animate-up">
+                    <span class="section-tag">Enterprise AI & HW Solutions</span>
+                    <h1 class="hero-title">기술의 한계를 넘어<br><span class="gradient-text">미래를 설계합니다</span></h1>
+                    <p class="hero-subtitle">ChoiGPT Corp.은 인공지능 에이전트와 정밀 하드웨어 기술을 결합하여, 단순한 개발을 넘어 교육과 전략적 지원을 아우르는 통합 비즈니스 생태계를 구축합니다.</p>
+                    <div class="hero-actions">
+                        <a href="#services" class="cta-button">핵심 서비스 보기</a>
+                        <a href="#portfolio" class="cta-button" style="background: transparent; border: 1px solid var(--glass-border); box-shadow: none; margin-left: 1rem;">성공 사례</a>
+                    </div>
+                </div>
+                <div class="project-image-container animate-up" style="animation-delay: 0.2s;">
+                    <img src="service_hero.png" alt="ChoiGPT Corp. Innovation" class="project-image">
+                </div>
+            </div>
+        </section>
+
+        <!-- 5 Core Services Section -->
+        <section id="services">
+            <div class="container" style="text-align: center;">
+                <span class="section-tag">Our Business Pillars</span>
+                <h2 class="hero-title" style="font-size: 3.5rem;">ChoiGPT <span class="gradient-text">Core 5 Services</span></h2>
+                <p class="hero-subtitle" style="margin-top: 1rem;">각 분야의 전문가들이 AI 에이전트를 활용하여 압도적인 퍼포먼스를 제공합니다.</p>
+                
+                <div class="service-grid-5">
+                    <!-- Service 1 -->
+                    <div class="service-item">
+                        <span class="service-icon">🤖</span>
+                        <h3>HW & SW 개발</h3>
+                        <p>AI AGENT를 개발 공정에 도입하여 고효율/고품질의 임베디드 및 소프트웨어 솔루션을 신속하게 구축합니다.</p>
+                    </div>
+                    <!-- Service 2 -->
+                    <div class="service-item">
+                        <span class="service-icon">🔌</span>
+                        <h3>아두이노 HW 교육</h3>
+                        <p>기초 회로 설계부터 IoT 시스템 구축까지, 실전 중심의 임베디드 엔지니어링 역량을 배양합니다.</p>
+                        <ul class="feature-list" style="font-size: 0.85rem; text-align: left; margin-top: 1rem;">
+                            <li>회로 아키텍처 및 펌웨어 프로그래밍</li>
+                            <li>센서 데이터 수집 및 실시간 액추에이터 제어</li>
+                        </ul>
+                    </div>
+                    <!-- Service 3 -->
+                    <div class="service-item">
+                        <span class="service-icon">👕</span>
+                        <h3>릴리패드 HW 교육</h3>
+                        <p>웨어러블 테크 기반의 융합 예술 교육. 4일간의 집중 커리큘럼을 통해 스마트 의류를 제작합니다.</p>
+                        <ul class="feature-list" style="font-size: 0.85rem; text-align: left; margin-top: 1rem;">
+                            <li>전도성 실을 활용한 세탁 가능한 회로 설계</li>
+                            <li>AI(Gemini) 연동 패션 디자인 및 패턴 최적화</li>
+                        </ul>
+                    </div>
+                    <!-- Service 4 -->
+                    <div class="service-item">
+                        <span class="service-icon">⚡</span>
+                        <h3>GenAI & 에이전트 교육</h3>
+                        <p>생성형 AI와 AI 에이전트를 실무에 적용하여 생산성을 10배 이상 높이는 최신 기술 워크플로우를 전수합니다.</p>
+                    </div>
+                    <!-- Service 5 -->
+                    <div class="service-item">
+                        <span class="service-icon">🏆</span>
+                        <h3>공모전 전략 지원</h3>
+                        <p>수상이 목표인 팀을 위해 아이디어 구체화부터 실제 동작하는 프로토타입 구현까지 전 과정을 밀착 지원합니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Case Studies -->
+        <section id="portfolio" style="background: rgba(255,255,255,0.02);">
+            <div class="container">
+                <div style="text-align: center; margin-bottom: 4rem;">
+                    <span class="section-tag">Featured Success</span>
+                    <h2 class="hero-title" style="font-size: 3rem;">기술과 교육의 <span class="gradient-text">실제적 증명</span></h2>
+                </div>
+
+                <!-- Case 1: EchoGuard-AI -->
+                <div class="project-grid" style="margin-bottom: 8rem;">
+                    <div class="project-image-container">
+                        <img src="echoguard.png" alt="EchoGuard-AI" class="project-image">
+                    </div>
+                    <div class="project-content">
+                        <span class="section-tag" style="background: rgba(0, 242, 254, 0.1); color: var(--accent-green);">개발 & 공모전 지원</span>
+                        <h3>EchoGuard-AI System</h3>
+                        <p class="hero-subtitle">Sound AI 기반 산업 장비 예지 보전</p>
+                        <p>초저비용 MEMS 마이크와 AI 알고리즘을 결합한 사례로, ChoiGPT의 HW/SW 개발 역량과 공모전 지원 서비스의 정점을 보여줍니다.</p>
+                        <ul class="feature-list">
+                            <li>AI Agent 기반 고속 프로토타이핑</li>
+                            <li>실시간 음향 분석 및 ESG 리포팅 솔루션</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Case 2: LilyPad Fashion AI -->
+                <div class="project-grid">
+                    <div class="project-content">
+                        <span class="section-tag" style="background: rgba(157, 80, 187, 0.1); color: var(--accent-purple);">교육 & 융합 솔루션</span>
+                        <h3>Case Study B: LilyPad Fashion AI</h3>
+                        <p class="hero-subtitle">웨어러블 테크 기반 창의 교육 플랫폼</p>
+                        <p>기술을 예술로 승화시키는 릴리패드 교육 프로젝트입니다. 4일간의 집중 커리큘럼(기초-센서-AI연동-최종조립)을 통해 패션 디자이너들이 직접 스마트 의류를 제작할 수 있도록 지원합니다.</p>
+                        <ul class="feature-list">
+                            <li>4-Day Intensive Curriculum (LilyPad Basic to Final Project)</li>
+                            <li>Gemini & NotebookLM 연동 AI 기획 가이드라인 제공</li>
+                            <li>Washable Circuits: 전도성 실을 활용한 세탁 가능 회로 설계</li>
+                        </ul>
+                    </div>
+                    <div class="project-image-container">
+                        <img src="lilypad.png" alt="LilyPad Fashion AI" class="project-image">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Strategy Section -->
+        <section id="strategy">
+            <div class="container">
+                <div style="text-align: center; margin-bottom: 4rem;">
+                    <span class="section-tag">Corporate Philosophy</span>
+                    <h2 class="hero-title" style="font-size: 3rem;">ChoiGPT <span class="gradient-text">Identity</span></h2>
+                </div>
+                <div class="strategy-grid">
+                    <div class="glass-card">
+                        <h3 style="margin-bottom: 1rem; color: var(--accent-blue);">Platform Agnostic</h3>
+                        <p>특정 벤더에 종속되지 않는 독립적인 아키텍처를 설계하여 범용성과 이식성을 보장합니다.</p>
+                    </div>
+                    <div class="glass-card">
+                        <h3 style="margin-bottom: 1rem; color: var(--accent-purple);">AI-Driven Speed</h3>
+                        <p>AI 에이전트를 개발 및 교육 전반에 활용하여 시장 대응 속도를 극대화합니다.</p>
+                    </div>
+                    <div class="glass-card">
+                        <h3 style="margin-bottom: 1rem; color: var(--accent-green);">Sustainable Impact</h3>
+                        <p>ESG 가치를 기술에 녹여내어 단순한 기능을 넘어 사회적 가치를 창출하는 솔루션을 지향합니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-logo">ChoiGPT <span class="gradient-text">Corp.</span></div>
+            <p class="footer-text">© 2026 ChoiGPT Corp. All Rights Reserved.</p>
+            <p class="footer-text" style="margin-top: 0.5rem; opacity: 0.5;">Hyper-Gap Business Strategy & AI Architecture</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
