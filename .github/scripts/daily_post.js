@@ -17,9 +17,9 @@ async function generateContent(theme) {
   const prompt = `스타트업 ChoiGPT 홍보를 위해 다음 주제에 대한 콘텐츠를 플랫폼별로 최적화하여 생성해줘. 주제: ${theme}
 응답은 반드시 아래 JSON 형식으로만 출력해 (마크다운 없이 순수 JSON만):
 {
-  "ig_caption": "인스타그램용 문구 (감성적, 이모지 활용, 마크다운/특수기호 절대 금지)",
-  "fb_caption": "페이스북용 문구 (전문적, 이모지 활용, 마크다운/특수기호 절대 금지)",
-  "imagePrompt": "Premium high-end 3D abstract tech graphic, corporate business aesthetic, futuristic blue and gold geometric shapes, sleek lighting, 8k, professional graphic design, minimalist, elegant, no people, no faces."
+  "ig_caption": "인스타그램용 문구 (감성적, 이모지 활용, 특수기호 절대 금지)",
+  "fb_caption": "페이스북용 문구 (전문적, 이모지 활용, 특수기호 절대 금지)",
+  "imagePrompt": "A high-quality professional macro photography of ${theme.includes('아두이노') ? 'an Arduino board with glowing LEDs and electronic circuits' : theme.includes('워크숍') ? 'a modern laptop with a sleek digital AI overlay' : 'futuristic high-tech hardware components'}. Professional lighting, sharp focus, 8k, realistic, no people, no faces, clean composition."
 }`;
   
   for (let attempt = 1; attempt <= 3; attempt++) {
@@ -35,15 +35,16 @@ async function generateContent(theme) {
       const rawText = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
       let parsed = JSON.parse(rawText);
       
-      // 마크다운 및 특수 기호 원천 제거 (불렛포인트는 오직 ✅ 📍 🚀 만 허용)
+      // 강력한 화이트리스트 기반 필터 (한글, 영문, 숫자, 기본 문장부호, 특정 이모지만 허용)
       const clean = (txt) => txt
-        .replace(/\*\*|\*|#|◆|◇|■|□|●|○|▷|▶|- /g, '')
-        .replace(/  +/g, ' ')
+        .replace(/[^가-힣a-zA-Z0-9\s.,!?:()🚀✅📍💬🔗#\n-]/g, '')
+        .replace(/\*\*|\*/g, '')
         .trim();
         
       parsed.ig_caption = clean(parsed.ig_caption);
       parsed.fb_caption = clean(parsed.fb_caption);
       
+      console.log('Cleaned FB Caption:', parsed.fb_caption);
       return parsed;
     } catch (e) {
       if (attempt === 3) throw e;
