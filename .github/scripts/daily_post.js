@@ -17,9 +17,9 @@ async function generateContent(theme) {
   const prompt = `스타트업 ChoiGPT 홍보를 위해 다음 주제에 대한 콘텐츠를 플랫폼별로 최적화하여 생성해줘. 주제: ${theme}
 응답은 반드시 아래 JSON 형식으로만 출력해 (마크다운 없이 순수 JSON만):
 {
-  "ig_caption": "인스타그램용 문구 (이모지 활용, 마크다운 기호 금지, 해시태그 포함)",
-  "fb_caption": "페이스북용 문구 (전문적, 이모지 활용, 마크다운 기호 금지)",
-  "imagePrompt": "A high-quality, professional sharp-focus photography of a modern bright corporate office. Real professional office workers in business casual attire, smiling naturally, working on laptops. Sunlit, clean, minimalist, premium corporate aesthetic, 8k, ultra-realistic, highly detailed faces and hands. No futuristic holograms, no dark rooms."
+  "ig_caption": "인스타그램용 문구 (감성적, 이모지 활용, 마크다운/특수기호 절대 금지)",
+  "fb_caption": "페이스북용 문구 (전문적, 이모지 활용, 마크다운/특수기호 절대 금지)",
+  "imagePrompt": "Premium high-end 3D abstract tech graphic, corporate business aesthetic, futuristic blue and gold geometric shapes, sleek lighting, 8k, professional graphic design, minimalist, elegant, no people, no faces."
 }`;
   
   for (let attempt = 1; attempt <= 3; attempt++) {
@@ -35,7 +35,12 @@ async function generateContent(theme) {
       const rawText = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
       let parsed = JSON.parse(rawText);
       
-      const clean = (txt) => txt.replace(/\*\*|\*/g, '').replace(/[◆◇■□●○]/g, '✅').trim();
+      // 마크다운 및 특수 기호 원천 제거 (불렛포인트는 오직 ✅ 📍 🚀 만 허용)
+      const clean = (txt) => txt
+        .replace(/\*\*|\*|#|◆|◇|■|□|●|○|▷|▶|- /g, '')
+        .replace(/  +/g, ' ')
+        .trim();
+        
       parsed.ig_caption = clean(parsed.ig_caption);
       parsed.fb_caption = clean(parsed.fb_caption);
       
