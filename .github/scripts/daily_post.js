@@ -102,7 +102,8 @@ async function run() {
   const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=1080&height=1080&nologo=true&seed=${seed}`;
   
   // 모든 이모지를 유니코드로 하드코딩 (깨짐 원천 차단)
-  const footer = '\n\n\uD83D\uDD17 \uD3EC\uD138: https://alexchoi21.github.io/ChoiGPT_Service/\n\uD83D\uDCAC \uBB38\uC758: https://open.kakao.com/o/syhiQlsi';
+  // 안정성이 검증된 이모지만 사용 (\u2705: ✅, \uD83D\uDCCD: 📍, \uD83D\uDE80: 🚀)
+  const footer = '\n\n\u2705 \uD3EC\uD138: https://alexchoi21.github.io/ChoiGPT_Service/\n\uD83D\uDCCD \uBB38\uC758: https://open.kakao.com/o/syhiQlsi';
 
   const post = async (url) => {
     const res = await fetch(url, { method: 'POST' });
@@ -114,13 +115,18 @@ async function run() {
   const sanitize = (txt) => {
     return txt
       .normalize('NFC')
-      .replace(/[\u0000-\u001F\u007F-\u009F]/g, '')
-      .replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, '')
+      .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // 제어 문자 제거
+      .replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, '') // 유령 문자 제거
       .trim();
   };
 
   const finalIgCaption = sanitize(ig_caption + footer);
   const finalFbCaption = sanitize(fb_caption + footer);
+
+  console.log('--- FINAL IG CAPTION ---');
+  console.log(finalIgCaption);
+  console.log('--- FINAL FB CAPTION ---');
+  console.log(finalFbCaption);
 
   console.log('Posting to Instagram...');
   const igParams = new URLSearchParams({
