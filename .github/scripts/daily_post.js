@@ -1,0 +1,78 @@
+const GEMINI_API_KEY = (process.env.GEMINI_API_KEY || '').trim();
+const IG_USER_ID = (process.env.IG_USER_ID || '').trim();
+const IG_ACCESS_TOKEN = (process.env.IG_ACCESS_TOKEN || '').trim();
+const FB_PAGE_ID = (process.env.FB_PAGE_ID || '').trim();
+const FB_ACCESS_TOKEN = (process.env.FB_ACCESS_TOKEN || '').trim();
+
+const themes = [
+  'ChoiGPT의 AI 기반 HW/SW 고속 개발 서비스 홍보',
+  '실전 아두이노 및 릴리패드 창의 교육 프로그램 홍보',
+  '생산성을 10배 높이는 생성형 AI 실무 워크숍 홍보',
+  '전국 청소년 AI 창의 경진대회 및 공모전 전략 지원 서비스 홍보',
+  '혁신적인 하드웨어 아키텍처와 임베디드 시스템 설계 전문성 강조',
+  '24시간 자율형 AI 마케팅 에이전트 서비스 도입 안내'
+];
+
+async function generateContent(theme) {
+  const prompt = `스타트업 ChoiGPT 홍보를 위해 다음 주제에 대한 콘텐츠를 플랫폼별로 최적화하여 생성해줘. 주제: ${theme}
+응답은 반드시 아래 JSON 형식으로만 출력해 (마크다운 없이 순수 JSON만):
+{
+  "ig_caption": "인스타그램용 문구 (이모지 활용, 마크다운 기호 금지, 해시태그 포함)",
+  "fb_caption": "페이스북용 문구 (전문적, 이모지 활용, 마크다운 기호 금지)",
+  "imagePrompt": "A high-quality, professional sharp-focus photography of a modern bright corporate office. Real professional office workers in business casual attire, smiling naturally, working on laptops. Sunlit, clean, minimalist, premium corporate aesthetic, 8k, ultra-realistic, highly detailed faces and hands. No futuristic holograms, no dark rooms."
+}`;
+  
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      });
+      const data = await res.json();
+      if (res.status === 429) { await new Promise(r => setTimeout(r, 5000)); continue; }
+      
+      const rawText = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
+      let parsed = JSON.parse(rawText);
+      
+      const clean = (txt) => txt.replace(/\*\*|\*/g, '').replace(/[◆◇■□●○]/g, '✅').trim();
+      parsed.ig_caption = clean(parsed.ig_caption);
+      parsed.fb_caption = clean(parsed.fb_caption);
+      
+      return parsed;
+    } catch (e) {
+      if (attempt === 3) throw e;
+      await new Promise(r => setTimeout(r, 2000));
+    }
+  }
+}
+
+async function run() {
+  const theme = themes[Math.floor(Math.random() * themes.length)];
+  console.log('Target Theme:', theme);
+  
+  const { ig_caption, fb_caption, imagePrompt } = await generateContent(theme);
+  const seed = Math.floor(Math.random() * 1000000);
+  const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=1080&height=1080&nologo=true&seed=${seed}`;
+  
+  const footer = '\n\n🔗 포털: https://alexchoi21.github.io/ChoiGPT_Service/\n💬 문의: https://open.kakao.com/o/syhiQlsi';
+
+  const post = async (url) => {
+    const res = await fetch(url, { method: 'POST' });
+    const data = await res.json();
+    if (data.error) throw new Error(JSON.stringify(data.error));
+    return data;
+  };
+
+  console.log('Posting to Instagram...');
+  const igMedia = await post(`https://graph.facebook.com/v20.0/${IG_USER_ID}/media?image_url=${encodeURIComponent(imageUrl)}&caption=${encodeURIComponent(ig_caption + footer)}&access_token=${IG_ACCESS_TOKEN}`);
+  await new Promise(r => setTimeout(r, 30000));
+  await post(`https://graph.facebook.com/v20.0/${IG_USER_ID}/media_publish?creation_id=${igMedia.id}&access_token=${IG_ACCESS_TOKEN}`);
+
+  console.log('Posting to Facebook...');
+  await post(`https://graph.facebook.com/v20.0/${FB_PAGE_ID}/photos?url=${encodeURIComponent(imageUrl)}&caption=${encodeURIComponent(fb_caption + footer)}&access_token=${FB_ACCESS_TOKEN}`);
+  
+  console.log('SUCCESS: All channels posted perfectly.');
+}
+
+run().catch(e => { console.error(e); process.exit(1); });
