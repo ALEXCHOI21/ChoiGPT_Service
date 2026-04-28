@@ -54,7 +54,13 @@ async function generateContent(selected) {
   {
     "ig_caption": "인스타그램용 문구 (감성적 임팩트, 해시태그 포함)",
     "fb_caption": "페이스북용 문구 (비즈니스 임팩트, 신뢰감)",
-    "imagePrompt": "A high-quality professional macro photography of ${selected.topic.includes('아두이노') ? 'an Arduino board with glowing LEDs and electronic circuits' : 'modern high-tech hardware components with sleek lighting'}. 8k, realistic, sharp focus, premium composition, no people."
+    "imagePrompt": "A clean, minimalist professional photography of ${
+      selected.topic.includes('아두이노') ? 'an Arduino board on a bright wooden desk with soft natural sunlight' : 
+      selected.topic.includes('웹사이트') ? 'a sleek laptop showing a clean minimalist website layout on a white marble table with a cup of coffee' :
+      selected.topic.includes('모바일') ? 'a modern smartphone held naturally in a hand showing a minimalist UI design, soft blurred office background' :
+      selected.topic.includes('시스템') ? 'a high-end server room with clean white lighting and organized cables, professional perspective' :
+      'a bright, modern minimalist workspace with soft natural light and high-end tech gadgets'
+    }. Shot on Sony A7R IV, 35mm lens, f/2.8, hyper-realistic, professional lighting, clean composition, no glowing neon, no futuristic effects, realistic textures, 8k."
   }`;
   
   for (let attempt = 1; attempt <= 3; attempt++) {
