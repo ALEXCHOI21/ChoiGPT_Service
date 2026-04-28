@@ -17,8 +17,8 @@ async function generateContent(theme) {
   const prompt = `스타트업 ChoiGPT 홍보를 위해 다음 주제에 대한 콘텐츠를 플랫폼별로 최적화하여 생성해줘. 주제: ${theme}
 응답은 반드시 아래 JSON 형식으로만 출력해 (마크다운 없이 순수 JSON만):
 {
-  "ig_caption": "인스타그램용 문구 (감성적, 이모지 활용, 특수기호 절대 금지)",
-  "fb_caption": "페이스북용 문구 (전문적, 이모지 활용, 특수기호 절대 금지)",
+  "ig_caption": "인스타그램용 문구 (감성적, 문장마다 줄바꿈 2번 필수, 불렛포인트 활용, 특수기호 금지)",
+  "fb_caption": "페이스북용 문구 (전문적, 문장마다 줄바꿈 2번 필수, 불렛포인트 활용, 특수기호 금지)",
   "imagePrompt": "A high-quality professional macro photography of ${theme.includes('아두이노') ? 'an Arduino board with glowing LEDs and electronic circuits' : theme.includes('워크숍') ? 'a modern laptop with a sleek digital AI overlay' : 'futuristic high-tech hardware components'}. Professional lighting, sharp focus, 8k, realistic, no people, no faces, clean composition."
 }`;
   
@@ -35,16 +35,20 @@ async function generateContent(theme) {
       const rawText = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
       let parsed = JSON.parse(rawText);
       
-      // 강력한 화이트리스트 기반 필터 (한글, 영문, 숫자, 기본 문장부호, 특정 이모지만 허용)
+      // 샌니타이징 및 가독성 정화 (줄바꿈 보존)
       const clean = (txt) => txt
-        .replace(/[^가-힣a-zA-Z0-9\s.,!?:()🚀✅📍💬🔗#\n-]/g, '')
+        .normalize('NFC')
+        .replace(/[\u0000-\u001F\u007F-\u009F]/g, '')
+        .replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, '')
+        .replace(/[^\u000A\u0020-\u007E\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uD7B0-\uD7FF\uD800-\uDBFF\uDC00-\uDFFF]/g, '')
         .replace(/\*\*|\*/g, '')
+        .replace(/\n/g, '\n\n') // 가독성을 위해 줄바꿈 강화
+        .replace(/\n\n\n+/g, '\n\n')
         .trim();
         
       parsed.ig_caption = clean(parsed.ig_caption);
       parsed.fb_caption = clean(parsed.fb_caption);
       
-      console.log('Cleaned FB Caption:', parsed.fb_caption);
       return parsed;
     } catch (e) {
       if (attempt === 3) throw e;
@@ -61,7 +65,8 @@ async function run() {
   const seed = Math.floor(Math.random() * 1000000);
   const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=1080&height=1080&nologo=true&seed=${seed}`;
   
-  const footer = '\n\n🔗 포털: https://alexchoi21.github.io/ChoiGPT_Service/\n💬 문의: https://open.kakao.com/o/syhiQlsi';
+  // 모든 이모지를 유니코드로 하드코딩 (깨짐 원천 차단)
+  const footer = '\n\n\uD83D\uDD17 \uD3EC\uD138: https://alexchoi21.github.io/ChoiGPT_Service/\n\uD83D\uDCAC \uBB38\uC758: https://open.kakao.com/o/syhiQlsi';
 
   const post = async (url) => {
     const res = await fetch(url, { method: 'POST' });
@@ -70,14 +75,11 @@ async function run() {
     return data;
   };
 
-  // 샌니타이징 함수: 제어 문자, 유령 문자(Lone Surrogate) 제거 및 유니코드 정규화
   const sanitize = (txt) => {
     return txt
       .normalize('NFC')
-      .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // 제어 문자 제거
-      // 짝이 맞지 않는 유령 문자(Lone Surrogate) 제거
+      .replace(/[\u0000-\u001F\u007F-\u009F]/g, '')
       .replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, '')
-      .replace(/[^\u0020-\u007E\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uD7B0-\uD7FF\uD800-\uDBFF\uDC00-\uDFFF🚀✅📍💬🔗#\n]/g, '')
       .trim();
   };
 
