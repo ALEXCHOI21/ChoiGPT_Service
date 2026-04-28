@@ -45,10 +45,10 @@ async function generateContent(selected) {
   핵심 강점(USP): ${selected.usp}
   
   작성 규칙:
-  1. 반드시 [Hook(강렬한 첫 문장)] -> [3가지 핵심 특징(숫자 활용)] -> [혜택/가치] -> [CTA] 구조를 따를 것.
-  2. "혁신적", "최고" 같은 추상적 단어보다 "70% 단축", "3배 빠른" 같은 구체적인 수치를 사용할 것.
-  3. 문장마다 줄바꿈 2번(Enter 2번)을 넣어 시각적 여백을 극대화할 것.
-  4. 불렛포인트는 ✅ 이모지만 사용할 것.
+  1. 반드시 [Hook] -> [3가지 핵심 특징] -> [혜택/가치] -> [CTA] 구조를 따를 것.
+  2. "70% 단축", "3배 빠른" 같은 구체적인 수치를 반드시 사용할 것.
+  3. 절대로 전화번호나 [웹사이트 주소] 같은 가짜 정보를 넣지 말 것. 본문 내용만 작성할 것.
+  4. 문장마다 반드시 줄바꿈을 넣어 가독성을 높일 것.
   
   응답은 반드시 아래 JSON 형식으로만 출력해 (마크다운 없이 순수 JSON만):
   {
@@ -70,13 +70,15 @@ async function generateContent(selected) {
       const rawText = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
       let parsed = JSON.parse(rawText);
       
+      // 가독성 강제 집행 및 샌니타이징
       const clean = (txt) => txt
         .normalize('NFC')
         .replace(/[\u0000-\u001F\u007F-\u009F]/g, '')
         .replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, '')
         .replace(/[^\u000A\u0020-\u007E\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uD7B0-\uD7FF\uD800-\uDBFF\uDC00-\uDFFF]/g, '')
         .replace(/\*\*|\*/g, '')
-        .replace(/\n/g, '\n\n')
+        // 마침표 뒤에 강제로 2줄 줄바꿈 삽입하여 가독성 확보
+        .replace(/([.!?])\s*/g, '$1\n\n')
         .replace(/\n\n\n+/g, '\n\n')
         .trim();
         
