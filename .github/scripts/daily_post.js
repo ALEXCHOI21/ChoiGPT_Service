@@ -70,11 +70,13 @@ async function run() {
     return data;
   };
 
-  // 샌니타이징 함수: 제어 문자 제거 및 유니코드 정규화
+  // 샌니타이징 함수: 제어 문자, 유령 문자(Lone Surrogate) 제거 및 유니코드 정규화
   const sanitize = (txt) => {
     return txt
       .normalize('NFC')
-      .replace(/[\u0000-\u001F\u007F-\u009F]/g, '')
+      .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // 제어 문자 제거
+      // 짝이 맞지 않는 유령 문자(Lone Surrogate) 제거
+      .replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, '')
       .replace(/[^\u0020-\u007E\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uD7B0-\uD7FF\uD800-\uDBFF\uDC00-\uDFFF🚀✅📍💬🔗#\n]/g, '')
       .trim();
   };
@@ -83,12 +85,22 @@ async function run() {
   const finalFbCaption = sanitize(fb_caption + footer);
 
   console.log('Posting to Instagram...');
-  const igMedia = await post(`https://graph.facebook.com/v20.0/${IG_USER_ID}/media?image_url=${encodeURIComponent(imageUrl)}&caption=${encodeURIComponent(finalIgCaption)}&access_token=${IG_ACCESS_TOKEN}`);
+  const igParams = new URLSearchParams({
+    image_url: imageUrl,
+    caption: finalIgCaption,
+    access_token: IG_ACCESS_TOKEN
+  });
+  const igMedia = await post(`https://graph.facebook.com/v20.0/${IG_USER_ID}/media?${igParams.toString()}`);
   await new Promise(r => setTimeout(r, 30000));
   await post(`https://graph.facebook.com/v20.0/${IG_USER_ID}/media_publish?creation_id=${igMedia.id}&access_token=${IG_ACCESS_TOKEN}`);
 
   console.log('Posting to Facebook...');
-  await post(`https://graph.facebook.com/v20.0/${FB_PAGE_ID}/photos?url=${encodeURIComponent(imageUrl)}&caption=${encodeURIComponent(finalFbCaption)}&access_token=${FB_ACCESS_TOKEN}`);
+  const fbParams = new URLSearchParams({
+    url: imageUrl,
+    caption: finalFbCaption,
+    access_token: FB_ACCESS_TOKEN
+  });
+  await post(`https://graph.facebook.com/v20.0/${FB_PAGE_ID}/photos?${fbParams.toString()}`);
   
   console.log('SUCCESS: All channels posted perfectly.');
 }
