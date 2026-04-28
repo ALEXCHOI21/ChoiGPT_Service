@@ -145,7 +145,8 @@ async function run() {
       .trim();
   };
 
-  const footer = '\n\n\u2705 \uD3EC\uD138: https://alexchoi21.github.io/ChoiGPT_Service/\n\uD83D\uDCCD \uBB38\uC758: https://open.kakao.com/o/syhiQlsi';
+  // 깨짐 없는 표준 기호 사용 (\u25B6: ▶, \u25CF: ●)
+  const footer = '\n\n\u25B6 \uD3EC\uD138: https://alexchoi21.github.io/ChoiGPT_Service/\n\u25CF \uBB38\uC758: https://open.kakao.com/o/syhiQlsi';
 
   const finalIgCaption = sanitize(ig_caption + footer);
   const finalFbCaption = sanitize(fb_caption + footer);
