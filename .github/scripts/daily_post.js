@@ -46,8 +46,8 @@ async function generateContent(selected) {
   
   작성 규칙:
   1. 반드시 [Hook] -> [3가지 핵심 특징] -> [혜택/가치] -> [CTA] 구조를 따를 것.
-  2. "70% 단축", "3배 빠른" 같은 구체적인 수치를 반드시 사용할 것.
-  3. 절대로 전화번호나 [웹사이트 주소] 같은 가짜 정보를 넣지 말 것. 본문 내용만 작성할 것.
+  2. 절대로 본문에 [Hook], [특징], [CTA] 같은 라벨을 직접 쓰지 말 것. 내용만 자연스럽게 작성할 것.
+  3. "70% 단축", "3배 빠른" 같은 구체적인 수치를 반드시 사용할 것.
   4. 문장마다 반드시 줄바꿈을 넣어 가독성을 높일 것.
   
   응답은 반드시 아래 JSON 형식으로만 출력해 (마크다운 없이 순수 JSON만):
@@ -70,14 +70,13 @@ async function generateContent(selected) {
       const rawText = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
       let parsed = JSON.parse(rawText);
       
-      // 가독성 강제 집행 및 샌니타이징
       const clean = (txt) => txt
         .normalize('NFC')
+        .replace(/\[Hook\]|\[3가지 핵심 특징\]|\[핵심 특징\]|\[혜택\/가치\]|\[CTA\]|\[특징\]/gi, '') // AI 라벨 제거
         .replace(/[\u0000-\u001F\u007F-\u009F]/g, '')
         .replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, '')
         .replace(/[^\u000A\u0020-\u007E\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uD7B0-\uD7FF\uD800-\uDBFF\uDC00-\uDFFF]/g, '')
         .replace(/\*\*|\*/g, '')
-        // 마침표 뒤에 강제로 2줄 줄바꿈 삽입하여 가독성 확보
         .replace(/([.!?])\s*/g, '$1\n\n')
         .replace(/\n\n\n+/g, '\n\n')
         .trim();
@@ -102,10 +101,13 @@ async function run() {
   const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=1080&height=1080&nologo=true&seed=${seed}`;
   
   const post = async (url, params) => {
+    const formData = new FormData();
+    for (const key in params) {
+      formData.append(key, params[key]);
+    }
     const res = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams(params).toString()
+      body: formData
     });
     const data = await res.json();
     if (data.error) throw new Error(JSON.stringify(data.error));
@@ -125,9 +127,8 @@ async function run() {
   const finalIgCaption = sanitize(ig_caption + footer);
   const finalFbCaption = sanitize(fb_caption + footer);
 
-  console.log('--- SENDING PAYLOAD ---');
-  console.log('IG CAPTION:', finalIgCaption);
-  console.log('FB CAPTION:', finalFbCaption);
+  console.log('--- FINAL CAPTION CHECK ---');
+  console.log(finalFbCaption);
 
   console.log('Posting to Instagram...');
   const igMedia = await post(`https://graph.facebook.com/v20.0/${IG_USER_ID}/media`, {
