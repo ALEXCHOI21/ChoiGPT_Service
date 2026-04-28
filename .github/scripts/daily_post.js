@@ -103,10 +103,26 @@ async function run() {
   const selected = themes[Math.floor(Math.random() * themes.length)];
   console.log('Selected Theme:', selected.topic);
   
-  const { ig_caption, fb_caption, imagePrompt } = await generateContent(selected);
-  const seed = Math.floor(Math.random() * 1000000);
-  const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=1080&height=1080&nologo=true&seed=${seed}`;
+  const { ig_caption, fb_caption } = await generateContent(selected);
   
+  // 카테고리별 이미지 매핑
+  const categoryMap = {
+    'AI 기반 HW/SW 고속 개발 서비스': 'hw_dev',
+    '실전 아두이노 및 릴리패드 창의 교육': 'education',
+    '생산성 10배 향상 AI 실무 워크숍': 'web_dev',
+    '전국 청소년 AI 창의 경진대회 전략 지원': 'education',
+    '24시간 자율형 AI 마케팅 에이전트': 'ai_marketing',
+    '웹사이트 개발 (쇼핑몰 및 홈페이지)': 'web_dev',
+    '모바일 어플리케이션 개발 (iOS/Android)': 'mobile_app',
+    '커스텀 온라인 시스템 개발 (ERP/CRM)': 'ai_marketing'
+  };
+
+  const category = categoryMap[selected.topic] || 'web_dev';
+  const imgNum = Math.floor(Math.random() * 2) + 1; // 현재 카테고리당 2장씩 준비됨
+  const imageUrl = `https://raw.githubusercontent.com/ALEXCHOI21/ChoiGPT_Marketing_Engine/main/.github/assets/images/${category}/${imgNum}.png`;
+  
+  console.log('Using Curated Asset:', imageUrl);
+
   const post = async (url, params) => {
     const formData = new FormData();
     for (const key in params) {
