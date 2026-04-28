@@ -28,9 +28,15 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           IMAGE_URL: 'https://alexchoi21.github.io/ChoiGPT_Service/customer_lite_infographic.png'
         run: |
-          export LANG=en_US.UTF-8
-          export LC_ALL=en_US.UTF-8
-          cat << 'EOF' > post_script.js
+          node -e "
+          const fs = require('fs');
+          const script = \`
+          const GEMINI_API_KEY = (process.env.GEMINI_API_KEY || '').trim();
+          const IG_USER_ID = (process.env.IG_USER_ID || '').trim();
+          const IG_ACCESS_TOKEN = (process.env.IG_ACCESS_TOKEN || '').trim();
+          const FB_PAGE_ID = (process.env.FB_PAGE_ID || '').trim();
+          const FB_ACCESS_TOKEN = (process.env.FB_ACCESS_TOKEN || '').trim();
+
           const themes = [
             'ChoiGPT의 AI 기반 HW/SW 고속 개발 서비스 홍보',
             '실전 아두이노 및 릴리패드 창의 교육 프로그램 홍보',
@@ -39,22 +45,12 @@ jobs:
             '혁신적인 하드웨어 아키텍처와 임베디드 시스템 설계 전문성 강조',
             '24시간 자율형 AI 마케팅 에이전트 서비스 도입 안내'
           ];
-          const GEMINI_API_KEY = (process.env.GEMINI_API_KEY || '').trim();
-          const IG_USER_ID = (process.env.IG_USER_ID || '').trim();
-          const IG_ACCESS_TOKEN = (process.env.IG_ACCESS_TOKEN || '').trim();
-          const FB_PAGE_ID = (process.env.FB_PAGE_ID || '').trim();
-          const FB_ACCESS_TOKEN = (process.env.FB_ACCESS_TOKEN || '').trim();
 
           async function generateContent(theme) {
-            const prompt = `스타트업 ChoiGPT 홍보를 위해 다음 주제에 대한 콘텐츠를 플랫폼별로 최적화하여 생성해줘. 주제: ${theme}
-            응답은 반드시 아래 JSON 형식으로만 출력해 (마크다운 없이 순수 JSON만):
-            {
-              "ig_caption": "인스타그램용 문구 (감성적, 이모지 풍부, 짧고 강렬한 문체, 해시태그 20개 포함. 절대로 **, *, # 같은 마크다운 기호 사용 금지. 불렛포인트는 반드시 ✅ 또는 📍 이모지만 사용할 것)",
-              "fb_caption": "페이스북용 문구 (정보 전달 중심, 전문적인 비즈니스 톤, 가독성 좋은 리스트 형식, 신뢰감 주는 문체. 절대로 **, *, # 같은 마크다운 기호 사용 금지. 불렛포인트는 반드시 ✅ 또는 📍 이모지만 사용할 것)",
-              "imagePrompt": "A bright, minimalist, high-end professional corporate office scene. Professional business people working in a clean, sunlit modern workspace. Professional photography, soft lighting, premium business aesthetic, 8k, ultra-realistic. No dark or cyberpunk themes."
-            }`;
+            const prompt = '스타트업 ChoiGPT 홍보를 위해 다음 주제에 대한 콘텐츠를 플랫폼별로 최적화하여 생성해줘. 주제: ' + theme + 
+            '\\n응답은 반드시 아래 JSON 형식으로만 출력해 (마크다운 없이 순수 JSON만):' +
+            '\\n{\\n  \"ig_caption\": \"인스타그램용 문구 (이모지 활용, 마크다운 기호 금지)\",\\n  \"fb_caption\": \"페이스북용 문구 (전문적, 이모지 활용, 마크다운 기호 금지)\",\\n  \"imagePrompt\": \"A high-quality, professional sharp-focus photography of a modern bright corporate office. Real professional office workers in business casual attire, smiling naturally, working on laptops. Sunlit, clean, minimalist, premium corporate aesthetic, 8k, ultra-realistic, highly detailed faces and hands. No futuristic holograms, no dark rooms.\"\\n}';
             
-            let lastError;
             for (let attempt = 1; attempt <= 3; attempt++) {
               try {
                 const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + GEMINI_API_KEY, {
@@ -63,64 +59,45 @@ jobs:
                   body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
                 });
                 const data = await res.json();
-                
-                if (res.status === 429) {
-                  const delay = Math.pow(2, attempt) * 1000;
-                  console.warn('Rate limited (429). Retrying...');
-                  await new Promise(r => setTimeout(r, delay));
-                  continue;
-                }
-
-                if (!data.candidates) throw new Error('Gemini API Error: ' + JSON.stringify(data));
-                
-                const rawText = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
+                if (res.status === 429) { await new Promise(r => setTimeout(r, 5000)); continue; }
+                const rawText = data.candidates[0].content.parts[0].text.replace(/\\`\\`\\`json|\\`\\`\\`/g, '').trim();
                 let parsed = JSON.parse(rawText);
-                
-                // 마크다운 기호 및 특수문자 완벽 정화
-                const clean = (txt) => txt.replace(/\*\*|\*/g, '').replace(/[◆◇■□●○]/g, '✅').trim();
+                const clean = (txt) => txt.replace(/\\\\*\\\\*|\\\\*/g, '').replace(/[◆◇■□●○]/g, '\\u2705').trim();
                 parsed.ig_caption = clean(parsed.ig_caption);
                 parsed.fb_caption = clean(parsed.fb_caption);
-                
                 return parsed;
-              } catch (e) {
-                lastError = e;
-                if (attempt < 3) await new Promise(r => setTimeout(r, 2000));
-              }
+              } catch (e) { if (attempt === 3) throw e; await new Promise(r => setTimeout(r, 2000)); }
             }
-            throw lastError;
-          }
-
-          async function postToInstagram(caption, imageUrl) {
-            const containerRes = await fetch('https://graph.facebook.com/v20.0/' + IG_USER_ID + '/media?image_url=' + encodeURIComponent(imageUrl) + '&caption=' + encodeURIComponent(caption) + '&access_token=' + IG_ACCESS_TOKEN, { method: 'POST' });
-            const containerData = await containerRes.json();
-            if (containerData.error) throw new Error('IG Container: ' + JSON.stringify(containerData.error));
-            await new Promise(r => setTimeout(r, 30000));
-            await fetch('https://graph.facebook.com/v20.0/' + IG_USER_ID + '/media_publish?creation_id=' + containerData.id + '&access_token=' + IG_ACCESS_TOKEN, { method: 'POST' });
-          }
-
-          async function postToFacebook(caption, imageUrl) {
-            const res = await fetch('https://graph.facebook.com/v20.0/' + FB_PAGE_ID + '/photos?url=' + encodeURIComponent(imageUrl) + '&caption=' + encodeURIComponent(caption) + '&access_token=' + FB_ACCESS_TOKEN, { method: 'POST' });
-            const data = await res.json();
-            if (data.error) throw new Error('FB Post: ' + JSON.stringify(data.error));
           }
 
           async function run() {
             const theme = themes[Math.floor(Math.random() * themes.length)];
             const { ig_caption, fb_caption, imagePrompt } = await generateContent(theme);
             const seed = Math.floor(Math.random() * 1000000);
-            const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=1080&height=1080&nologo=true&seed=${seed}`;
+            const imageUrl = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(imagePrompt) + '?width=1080&height=1080&nologo=true&seed=' + seed;
+            
+            // 이모지 탈출 문자를 사용하여 인코딩 문제 원천 봉쇄
+            const footer = '\\n\\n\\uD83D\\uDD17 \\uD3EC\\uD138: https://alexchoi21.github.io/ChoiGPT_Service/\\n\\uD83D\\uDCAC \\uBB38\\uC758: https://open.kakao.com/o/syhiQlsi';
 
-            // 인코딩 안전을 위해 푸터를 Base64로 처리 (🔗 포털: ..., 💬 문의: ...)
-            const footerBase64 = 'Cgox7KeAIO2PrO2primeOiBodHRwczovL2FsZXhjaG9pMjEuZ2l0aHViLmlvL0Nob2lHUFRfU2VydmljZS8K8J+SuiDrrLjsnZg6IGh0dHBzOi8vb3Blbi5rYWthby5jb20vby9zeWhpUWxzaQ==';
-            const footer = Buffer.from(footerBase64, 'base64').toString('utf8');
+            const post = async (url) => {
+              const res = await fetch(url, { method: 'POST' });
+              const data = await res.json();
+              if (data.error) throw new Error(JSON.stringify(data.error));
+              return data;
+            };
 
-            await Promise.all([
-              postToInstagram(ig_caption + footer, imageUrl),
-              postToFacebook(fb_caption + footer, imageUrl)
-            ]);
-            console.log('SUCCESS: All channels posted with perfect encoding.');
+            console.log('Posting IG...');
+            const igMedia = await post('https://graph.facebook.com/v20.0/' + IG_USER_ID + '/media?image_url=' + encodeURIComponent(imageUrl) + '&caption=' + encodeURIComponent(ig_caption + footer) + '&access_token=' + IG_ACCESS_TOKEN);
+            await new Promise(r => setTimeout(r, 30000));
+            await post('https://graph.facebook.com/v20.0/' + IG_USER_ID + '/media_publish?creation_id=' + igMedia.id + '&access_token=' + IG_ACCESS_TOKEN);
+
+            console.log('Posting FB...');
+            await post('https://graph.facebook.com/v20.0/' + FB_PAGE_ID + '/photos?url=' + encodeURIComponent(imageUrl) + '&caption=' + encodeURIComponent(fb_caption + footer) + '&access_token=' + FB_ACCESS_TOKEN);
+            
+            console.log('SUCCESS');
           }
-
           run().catch(e => { console.error(e); process.exit(1); });
-          EOF
+          \`;
+          fs.writeFileSync('post_script.js', script);
+          "
           node post_script.js
