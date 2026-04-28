@@ -47,8 +47,8 @@ jobs:
             const prompt = `스타트업 ChoiGPT 홍보를 위해 다음 주제에 대한 콘텐츠를 플랫폼별로 최적화하여 생성해줘. 주제: ${theme}
             응답은 반드시 아래 JSON 형식으로만 출력해 (마크다운 없이 순수 JSON만):
             {
-              "ig_caption": "인스타그램용 문구 (감성적, 이모지 풍부, 짧고 강렬한 문체, 트렌디한 감성, 해시태그 20개 포함)",
-              "fb_caption": "페이스북용 문구 (정보 전달 중심, 전문적인 비즈니스 톤, 가독성 좋은 리스트 형식, 신뢰감 주는 문체, 링크 클릭 유도)",
+              "ig_caption": "인스타그램용 문구 (감성적, 이모지 풍부, 짧고 강렬한 문체, 해시태그 20개 포함. [링크 클릭 유도] 같은 플레이스홀더 절대 금지, 대신 자연스러운 문구 사용)",
+              "fb_caption": "페이스북용 문구 (정보 전달 중심, 전문적인 비즈니스 톤, 가독성 좋은 리스트 형식, 신뢰감 주는 문체, 자연스러운 링크 클릭 유도 문구 포함. 플레이스홀더 절대 금지)",
               "imagePrompt": "고품질 실사 이미지를 위한 영문 프롬프트 (English, cinematic, high-tech, 8k, professional photography style, futuristic business aesthetic)"
             }`;
             
@@ -114,7 +114,7 @@ jobs:
             const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=1080&height=1080&nologo=true&seed=${seed}`;
             console.log('Generated Image URL:', imageUrl);
 
-            const footer = '\n\n🔗 포털: https://alexchoi21.github.io/ChoiGPT_Service/\n💬 문의: https://open.kakao.com/o/syhiQlsi';
+            const footer = '\n\n\uD83D\uDD17 \uD3EC\uD138: https://alexchoi21.github.io/ChoiGPT_Service/\n\uD83D\uDCAC \uBB38\uC758: https://open.kakao.com/o/syhiQlsi';
 
             await Promise.all([
               postToInstagram(ig_caption + footer, imageUrl),
