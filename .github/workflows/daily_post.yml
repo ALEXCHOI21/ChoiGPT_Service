@@ -1,6 +1,8 @@
 name: Multi-Channel Gemini SNS Agent (v5.0)
 
 on:
+  push:
+    branches: [ main ]
   schedule:
     - cron: '0 */2 * * *' # 2시간마다 실행
   workflow_dispatch: # 수동 실행 가능
@@ -26,8 +28,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           IMAGE_URL: 'https://alexchoi21.github.io/ChoiGPT_Service/customer_lite_infographic.png'
         run: |
-          node -e "
-          const baseUrl = 'https://alexchoi21.github.io/ChoiGPT_Service/';
+          cat << 'EOF' > post_script.js
           const themes = [
             'ChoiGPT의 AI 기반 HW/SW 고속 개발 서비스 홍보',
             '실전 아두이노 및 릴리패드 창의 교육 프로그램 홍보',
@@ -105,4 +106,5 @@ jobs:
           }
 
           run().catch(e => { console.error(e); process.exit(1); });
-          "
+          EOF
+          node post_script.js
