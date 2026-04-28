@@ -101,12 +101,12 @@ async function run() {
   const seed = Math.floor(Math.random() * 1000000);
   const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=1080&height=1080&nologo=true&seed=${seed}`;
   
-  // 모든 이모지를 유니코드로 하드코딩 (깨짐 원천 차단)
-  // 안정성이 검증된 이모지만 사용 (\u2705: ✅, \uD83D\uDCCD: 📍, \uD83D\uDE80: 🚀)
-  const footer = '\n\n\u2705 \uD3EC\uD138: https://alexchoi21.github.io/ChoiGPT_Service/\n\uD83D\uDCCD \uBB38\uC758: https://open.kakao.com/o/syhiQlsi';
-
-  const post = async (url) => {
-    const res = await fetch(url, { method: 'POST' });
+  const post = async (url, params) => {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(params).toString()
+    });
     const data = await res.json();
     if (data.error) throw new Error(JSON.stringify(data.error));
     return data;
@@ -115,36 +115,38 @@ async function run() {
   const sanitize = (txt) => {
     return txt
       .normalize('NFC')
-      .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // 제어 문자 제거
-      .replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, '') // 유령 문자 제거
+      .replace(/[\u0000-\u001F\u007F-\u009F]/g, '')
+      .replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, '')
       .trim();
   };
+
+  const footer = '\n\n\u2705 \uD3EC\uD138: https://alexchoi21.github.io/ChoiGPT_Service/\n\uD83D\uDCCD \uBB38\uC758: https://open.kakao.com/o/syhiQlsi';
 
   const finalIgCaption = sanitize(ig_caption + footer);
   const finalFbCaption = sanitize(fb_caption + footer);
 
-  console.log('--- FINAL IG CAPTION ---');
-  console.log(finalIgCaption);
-  console.log('--- FINAL FB CAPTION ---');
-  console.log(finalFbCaption);
+  console.log('--- SENDING PAYLOAD ---');
+  console.log('IG CAPTION:', finalIgCaption);
+  console.log('FB CAPTION:', finalFbCaption);
 
   console.log('Posting to Instagram...');
-  const igParams = new URLSearchParams({
+  const igMedia = await post(`https://graph.facebook.com/v20.0/${IG_USER_ID}/media`, {
     image_url: imageUrl,
     caption: finalIgCaption,
     access_token: IG_ACCESS_TOKEN
   });
-  const igMedia = await post(`https://graph.facebook.com/v20.0/${IG_USER_ID}/media?${igParams.toString()}`);
   await new Promise(r => setTimeout(r, 30000));
-  await post(`https://graph.facebook.com/v20.0/${IG_USER_ID}/media_publish?creation_id=${igMedia.id}&access_token=${IG_ACCESS_TOKEN}`);
+  await post(`https://graph.facebook.com/v20.0/${IG_USER_ID}/media_publish`, {
+    creation_id: igMedia.id,
+    access_token: IG_ACCESS_TOKEN
+  });
 
   console.log('Posting to Facebook...');
-  const fbParams = new URLSearchParams({
+  await post(`https://graph.facebook.com/v20.0/${FB_PAGE_ID}/photos`, {
     url: imageUrl,
     caption: finalFbCaption,
     access_token: FB_ACCESS_TOKEN
   });
-  await post(`https://graph.facebook.com/v20.0/${FB_PAGE_ID}/photos?${fbParams.toString()}`);
   
   console.log('SUCCESS: All channels posted perfectly.');
 }
