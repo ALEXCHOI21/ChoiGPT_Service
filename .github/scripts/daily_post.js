@@ -6,36 +6,29 @@ const FB_ACCESS_TOKEN = (process.env.FB_ACCESS_TOKEN || '').trim();
 
 const themes = [
   {
-    topic: 'AI 기반 HW/SW 고속 개발 서비스',
-    usp: '업계 평균 대비 3배 빠른 프로토타이핑, AI 자동 PCB 라우팅으로 개발 기간 70% 단축, HW/SW 통합 솔루션 원스톱 제공'
+    topic: '24시간 자율형 AI 마케팅 에이전트',
+    usp: '성공사례: Antigravity Math Engine 마케팅 자동화 달성, 실시간 데이터 분석 기반 키워드 타격, 기존 대비 도달률 300% 향상',
+    weight: 5 // 1순위
+  },
+  {
+    topic: 'AI Agent 맞춤형 개발 및 비즈니스 솔루션',
+    usp: 'Antigravity Math Engine 같은 고성능 업무 툴 제작, 반복 업무 90% 자동화, 비즈니스 성장에 따른 유연한 확장성',
+    weight: 4 // 2순위
+  },
+  {
+    topic: '생산성 10배 향상 AI Agent 실무 교육',
+    usp: '현업 즉시 적용 가능한 LLM 프롬프트 엔지니어링, 업무 자동화 에이전트 마스터링, 기업별 맞춤형 컨설팅',
+    weight: 3 // 3순위
   },
   {
     topic: '실전 아두이노 및 릴리패드 창의 교육',
-    usp: '단 하루 만에 완성하는 실전 IoT 시제품 제작, 특허 기술 기반 릴리패드 키트 활용, 비전공자도 가능한 논리적 코딩 커리큘럼'
+    usp: '단 하루 만에 완성하는 실전 IoT 시제품 제작, 특허 기술 기반 릴리패드 키트 활용, 비전공자도 가능한 커리큘럼',
+    weight: 2 // 4순위
   },
   {
-    topic: '생산성 10배 향상 AI 실무 워크숍',
-    usp: '현업 즉시 적용 가능한 LLM 프롬프트 엔지니어링, 워크플로우 자동화 도구 마스터링, 기업별 맞춤형 AI 도입 컨설팅'
-  },
-  {
-    topic: '전국 청소년 AI 창의 경진대회 전략 지원',
-    usp: 'AI 분야 실전 전문가의 1:1 밀착 코칭, 프로젝트 기획부터 기술 구현까지 전 과정 가이드, 수상 가능성을 높이는 데이터 기반 프로젝트 고도화'
-  },
-  {
-    topic: '24시간 자율형 AI 마케팅 에이전트',
-    usp: '사람보다 정교한 24/7 자동 포스팅 및 고객 응대, 실시간 상권 데이터 분석 기반 키워드 타격, 광고비 대비 도달률 300% 향상'
-  },
-  {
-    topic: '웹사이트 개발 (쇼핑몰 및 홈페이지)',
-    usp: '매출로 직결되는 구매 전환율 최적화 설계, 검색 엔진 상위 노출(SEO) 자동 세팅, 최신 Next.js 기반 초고속 반응형 웹 구축'
-  },
-  {
-    topic: '모바일 어플리케이션 개발 (iOS/Android)',
-    usp: 'Flutter/React Native 기반 비용 50% 절감 개발, 직관적인 UI/UX 디자인으로 사용자 체류시간 증대, 고성능 네이티브급 퍼포먼스 구현'
-  },
-  {
-    topic: '커스텀 온라인 시스템 개발 (ERP/CRM)',
-    usp: '반복 업무 90% 자동화하는 맞춤형 관리 시스템, 데이터 보안 및 무중단 클라우드 아키텍처, 비즈니스 성장에 따른 유연한 확장성'
+    topic: 'AI 기반 HW/SW 고속 개발 서비스',
+    usp: '업계 평균 대비 3배 빠른 프로토타이핑, AI 자동 PCB 라우팅으로 개발 기간 70% 단축, HW/SW 통합 솔루션',
+    weight: 1 // 5순위
   }
 ];
 
@@ -43,12 +36,13 @@ async function generateContent(selected) {
   const prompt = `스타트업 ChoiGPT 홍보를 위해 다음 주제에 대한 강력한 마케팅 콘텐츠를 생성해줘.
   주제: ${selected.topic}
   핵심 강점(USP): ${selected.usp}
+  관련 링크: https://choigpt.tistory.com/253 (Antigravity Math Engine 성공 사례 참고)
   
   작성 규칙 (절대 준수):
   1. 제공된 USP 정보 외에 절대 특정 대학 이름, 팀 구성, 이력을 지어내지 말 것. (허위 사실 기재 금지)
   2. 반드시 [Hook] -> [3가지 핵심 특징] -> [혜택/가치] -> [CTA] 구조를 따를 것.
   3. 절대로 본문에 [Hook], [특징], [CTA] 같은 라벨을 직접 쓰지 말 것. 내용만 자연스럽게 작성할 것.
-  4. "70% 단축", "3배 빠른" 같은 구체적인 수치를 반드시 사용할 것.
+  4. "70% 단축", "3배 빠른" 같은 구체적인 수치를 적극 활용할 것.
   5. 문장마다 반드시 줄바꿈을 넣어 가독성을 높일 것.
   
   응답은 반드시 아래 JSON 형식으로만 출력해 (마크다운 없이 순수 JSON만):
@@ -100,21 +94,29 @@ async function generateContent(selected) {
 }
 
 async function run() {
-  const selected = themes[Math.floor(Math.random() * themes.length)];
-  console.log('Selected Theme:', selected.topic);
+  const totalWeight = themes.reduce((sum, t) => sum + t.weight, 0);
+  let random = Math.floor(Math.random() * totalWeight);
+  let selected = themes[0];
+  
+  for (const t of themes) {
+    if (random < t.weight) {
+      selected = t;
+      break;
+    }
+    random -= t.weight;
+  }
+  
+  console.log('Selected Theme (Weighted):', selected.topic);
   
   const { ig_caption, fb_caption } = await generateContent(selected);
   
   // 카테고리별 이미지 매핑
   const categoryMap = {
-    'AI 기반 HW/SW 고속 개발 서비스': 'hw_dev',
-    '실전 아두이노 및 릴리패드 창의 교육': 'education',
-    '생산성 10배 향상 AI 실무 워크숍': 'web_dev',
-    '전국 청소년 AI 창의 경진대회 전략 지원': 'education',
     '24시간 자율형 AI 마케팅 에이전트': 'ai_marketing',
-    '웹사이트 개발 (쇼핑몰 및 홈페이지)': 'web_dev',
-    '모바일 어플리케이션 개발 (iOS/Android)': 'mobile_app',
-    '커스텀 온라인 시스템 개발 (ERP/CRM)': 'ai_marketing'
+    'AI Agent 맞춤형 개발 및 비즈니스 솔루션': 'web_dev',
+    '생산성 10배 향상 AI Agent 실무 교육': 'web_dev',
+    '실전 아두이노 및 릴리패드 창의 교육': 'education',
+    'AI 기반 HW/SW 고속 개발 서비스': 'hw_dev'
   };
 
   const category = categoryMap[selected.topic] || 'web_dev';
