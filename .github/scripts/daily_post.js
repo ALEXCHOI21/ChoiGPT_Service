@@ -118,7 +118,7 @@ async function run() {
   };
 
   const category = categoryMap[selected.topic] || 'web_dev';
-  const imgNum = Math.floor(Math.random() * 2) + 1; // 현재 카테고리당 2장씩 준비됨
+  const imgNum = Math.floor(Math.random() * 8) + 1; // 확장된 자산 풀(현재 8장) 반영
   
   // 중앙 자산 저장소(ChoiGPT_Assets) 주소로 변경
   // 메인 프로젝트가 비공개(Private)가 되어도 이미지는 공개(Public) 저장소에서 안전하게 제공됨
