@@ -119,9 +119,11 @@ async function run() {
 
   const category = categoryMap[selected.topic] || 'web_dev';
   const imgNum = Math.floor(Math.random() * 2) + 1; // 현재 카테고리당 2장씩 준비됨
-  const imageUrl = `https://raw.githubusercontent.com/ALEXCHOI21/ChoiGPT_Marketing_Engine/main/.github/assets/images/${category}/${imgNum}.png`;
   
-  console.log('Using Curated Asset:', imageUrl);
+  // GitHub Pages 주소로 변경 (페이스북 스크래퍼 호환성 극대화)
+  const imageUrl = `https://alexchoi21.github.io/ChoiGPT_Marketing_Engine/.github/assets/images/${category}/${imgNum}.png`;
+  
+  console.log('Using Curated Asset (Pages URL):', imageUrl);
 
   const post = async (url, params) => {
     const formData = new FormData();
