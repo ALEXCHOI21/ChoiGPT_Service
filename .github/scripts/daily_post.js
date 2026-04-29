@@ -120,10 +120,11 @@ async function run() {
   const category = categoryMap[selected.topic] || 'web_dev';
   const imgNum = Math.floor(Math.random() * 2) + 1; // 현재 카테고리당 2장씩 준비됨
   
-  // GitHub Pages 주소로 변경 (페이스북 스크래퍼 호환성 극대화)
-  const imageUrl = `https://alexchoi21.github.io/ChoiGPT_Marketing_Engine/.github/assets/images/${category}/${imgNum}.png`;
+  // 중앙 자산 저장소(ChoiGPT_Assets) 주소로 변경
+  // 메인 프로젝트가 비공개(Private)가 되어도 이미지는 공개(Public) 저장소에서 안전하게 제공됨
+  const imageUrl = `https://alexchoi21.github.io/ChoiGPT_Assets/images/${category}/${imgNum}.png`;
   
-  console.log('Using Curated Asset (Pages URL):', imageUrl);
+  console.log('Using Centralized Asset (ChoiGPT_Assets):', imageUrl);
 
   const post = async (url, params) => {
     const formData = new FormData();
