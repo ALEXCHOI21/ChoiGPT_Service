@@ -120,13 +120,23 @@ async function run() {
   };
 
   const category = categoryMap[selected.topic] || 'web_dev';
-  const imgNum = Math.floor(Math.random() * 8) + 1; // 확장된 자산 풀(현재 8장) 반영
   
-  // 중앙 자산 저장소(ChoiGPT_Assets) 주소로 변경
-  // 메인 프로젝트가 비공개(Private)가 되어도 이미지는 공개(Public) 저장소에서 안전하게 제공됨
+  // 카테고리별 실제 보유 자산 수 (현재 기준)
+  const assetCounts = {
+    'ai_marketing': 2,
+    'web_dev': 8,
+    'hw_dev': 7,
+    'education': 2,
+    'mobile_app': 8
+  };
+
+  const maxNum = assetCounts[category] || 2;
+  const imgNum = Math.floor(Math.random() * maxNum) + 1;
+  
+  // 중앙 자산 저장소(ChoiGPT_Assets) 주소
   const imageUrl = `https://alexchoi21.github.io/ChoiGPT_Assets/images/${category}/${imgNum}.png`;
   
-  console.log('Using Centralized Asset (ChoiGPT_Assets):', imageUrl);
+  console.log(`Using Centralized Asset: ${imageUrl} (Category Range: 1-${maxNum})`);
 
   const post = async (url, params) => {
     const formData = new FormData();
