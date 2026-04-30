@@ -112,7 +112,7 @@ async function run() {
   
   // 카테고리별 이미지 매핑
   const categoryMap = {
-    '24시간 자율형 AI 마케팅 에이전트': 'ai_marketing',
+    '24시간 자율형 AI 마케팅 에이전트': 'math_engine', // 성공 사례 기반 비주얼 강조
     'AI Agent 맞춤형 개발 및 비즈니스 솔루션': 'web_dev',
     '생산성 10배 향상 AI Agent 실무 교육': 'web_dev',
     '실전 아두이노 및 릴리패드 창의 교육': 'education',
@@ -121,8 +121,9 @@ async function run() {
 
   const category = categoryMap[selected.topic] || 'web_dev';
   
-  // 카테고리별 실제 보유 자산 수 (현재 기준)
+  // 카테고리별 실제 보유 자산 수 (v25.0 최신화)
   const assetCounts = {
+    'math_engine': 6,
     'ai_marketing': 2,
     'web_dev': 8,
     'hw_dev': 7,
