@@ -6,9 +6,16 @@ const FB_ACCESS_TOKEN = (process.env.FB_ACCESS_TOKEN || '').trim();
 
 const themes = [
   {
+    topic: '최이지피티 24/7 마케팅 마스터 (서비스 공식 런칭)',
+    usp: 'AI 엔진 기반 24시간 자율 마케팅 시스템. 1/3/6/12개월 맞춤형 상품 구성. 업계 최저 수준의 고효율 자동화 솔루션. 문의: cdrhy219@gmail.com',
+    weight: 6, // 최우선 홍보
+    isFixedImage: true,
+    fixedImagePath: 'service_info/infographic.png'
+  },
+  {
     topic: '24시간 자율형 AI 마케팅 에이전트',
     usp: '성공사례: Antigravity Math Engine 마케팅 자동화 달성, 실시간 데이터 분석 기반 키워드 타격, 기존 대비 도달률 300% 향상',
-    weight: 5 // 1순위
+    weight: 5
   },
   {
     topic: 'AI Agent 맞춤형 개발 및 비즈니스 솔루션',
@@ -110,33 +117,35 @@ async function run() {
   
   const { ig_caption, fb_caption } = await generateContent(selected);
   
-  // 카테고리별 이미지 매핑
-  const categoryMap = {
-    '24시간 자율형 AI 마케팅 에이전트': 'ai_marketing', // 성공 사례 기반 비주얼 강조
-    'AI Agent 맞춤형 개발 및 비즈니스 솔루션': 'web_dev',
-    '생산성 10배 향상 AI Agent 실무 교육': 'web_dev',
-    '실전 아두이노 및 릴리패드 창의 교육': 'education',
-    'AI 기반 HW/SW 고속 개발 서비스': 'hw_dev'
-  };
+  let imageUrl;
+  if (selected.isFixedImage) {
+    imageUrl = `https://alexchoi21.github.io/ChoiGPT_Assets/images/${selected.fixedImagePath}`;
+  } else {
+    // 카테고리별 이미지 매핑
+    const categoryMap = {
+      '24시간 자율형 AI 마케팅 에이전트': 'ai_marketing',
+      'AI Agent 맞춤형 개발 및 비즈니스 솔루션': 'web_dev',
+      '생산성 10배 향상 AI Agent 실무 교육': 'web_dev',
+      '실전 아두이노 및 릴리패드 창의 교육': 'education',
+      'AI 기반 HW/SW 고속 개발 서비스': 'hw_dev'
+    };
 
-  const category = categoryMap[selected.topic] || 'web_dev';
-  
-  // 카테고리별 실제 보유 자산 수 (v25.0 최신화)
-  const assetCounts = {
-    'ai_marketing': 2,
-    'web_dev': 25,
-    'hw_dev': 40,
-    'education': 2,
-    'mobile_app': 25
-  };
+    const category = categoryMap[selected.topic] || 'web_dev';
+    
+    const assetCounts = {
+      'ai_marketing': 2,
+      'web_dev': 25,
+      'hw_dev': 40,
+      'education': 2,
+      'mobile_app': 25
+    };
 
-  const maxNum = assetCounts[category] || 2;
-  const imgNum = Math.floor(Math.random() * maxNum) + 1;
+    const maxNum = assetCounts[category] || 2;
+    const imgNum = Math.floor(Math.random() * maxNum) + 1;
+    imageUrl = `https://alexchoi21.github.io/ChoiGPT_Assets/images/${category}/${imgNum}.png`;
+  }
   
-  // 중앙 자산 저장소(ChoiGPT_Assets) 주소
-  const imageUrl = `https://alexchoi21.github.io/ChoiGPT_Assets/images/${category}/${imgNum}.png`;
-  
-  console.log(`Using Centralized Asset: ${imageUrl} (Category Range: 1-${maxNum})`);
+  console.log(`Using Asset: ${imageUrl}`);
 
   const post = async (url, params) => {
     const formData = new FormData();
