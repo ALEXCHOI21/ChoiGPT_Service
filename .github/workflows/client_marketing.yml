@@ -1,0 +1,32 @@
+name: B2B Client Marketing Agent (v1.0)
+
+on:
+  schedule:
+    - cron: '0 */6 * * *' # 6시간마다 자율 실행
+  workflow_dispatch: # 수동 실행 가능
+
+jobs:
+  marketing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install node-fetch@2 @supabase/supabase-js
+
+      - name: Run Market Analysis & Posting
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          FB_PAGE_ID_2ND: ${{ secrets.FB_PAGE_ID_2ND }}
+          FB_ACCESS_TOKEN_2ND: ${{ secrets.FB_ACCESS_TOKEN_2ND }}
+        run: |
+          node .github/scripts/analysis_engine.js
+          node .github/scripts/client_automation.js
