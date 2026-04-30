@@ -6,9 +6,16 @@ const FB_ACCESS_TOKEN = (process.env.FB_ACCESS_TOKEN || '').trim();
 
 const themes = [
   {
-    topic: '최이지피티 24/7 마케팅 마스터 (서비스 공식 런칭)',
+    topic: '최지피티 24/7 마케팅 마스터 (서비스 공식 런칭)',
     usp: 'AI 엔진 기반 24시간 자율 마케팅 시스템. 1/3/6/12개월 맞춤형 상품 구성. 업계 최저 수준의 고효율 자동화 솔루션. 문의: cdrhy219@gmail.com',
     weight: 6, // 최우선 홍보
+    isFixedImage: true,
+    fixedImagePath: 'service_info/infographic.png'
+  },
+  {
+    topic: '최지피티 B2B 마켓 인텔리전스 (AI 전략 분석 리포트)',
+    usp: 'STP, AIDA, SWOT, 4P 프레임워크를 기반으로 AI가 즉시 수립하는 최강의 마케팅 전략. 데이터 기반 지역 상권 정밀 분석 및 타겟팅.',
+    weight: 6, // 동일하게 최우선 가중치 부여
     isFixedImage: true,
     fixedImagePath: 'service_info/infographic.png'
   },
