@@ -6,9 +6,9 @@ const FB_ACCESS_TOKEN = (process.env.FB_ACCESS_TOKEN || '').trim();
 
 const themes = [
   {
-    topic: '최지피티(ChoiGPT) 24/7 마케팅 마스터',
-    usp: 'AI 엔진 기반 24시간 자율 SNS 마케팅 및 B2B 마켓 인텔리전스. [Starter: 99만원/월], [Growth: 89만원/월], [Enterprise: 79만원/월]. 전문가급 전략 분석 리포트(STP, SWOT, 4P) 제공. 입에 착착 감기는 매출 자동화 솔루션. 문의: cdrhy219@gmail.com / 카톡 오픈채팅',
-    weight: 100, // 1순위 홍보 비중 압도적 강화
+    topic: '최지피티(ChoiGPT) 24/7 마케팅 자동화',
+    usp: 'AI 엔진 기반 24시간 자율 마케팅 서비스. [MVP 검증형: 99만원/월], [상권 최적화형: 89만원/월], [매출 성장형: 79만원/월], [시장 독점형: 69만원/월]. 전문가급 전략 분석 리포트 제공. 입에 착착 감기는 압도적 매출 자동화 솔루션. 문의: cdrhy219@gmail.com / 카톡 오픈채팅',
+    weight: 100, // 1순위 홍보 비중 고정
     isFixedImage: true,
     fixedImagePath: 'service_info/infographic.png'
   },
