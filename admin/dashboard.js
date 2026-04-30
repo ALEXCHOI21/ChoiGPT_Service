@@ -142,7 +142,7 @@ async function loadClients() {
 }
 
 /**
- * View Detailed Report (Molecule)
+ * Enhanced View Report with Auto-Trigger
  */
 async function viewReport(clientId) {
     const { data: client, error } = await _supabase
@@ -158,20 +158,28 @@ async function viewReport(clientId) {
     const title = document.getElementById('modal-title');
 
     title.textContent = `${client.business_name} | 마켓 인텔리전스`;
-    
+    modal.style.display = 'block';
+
     if (client.analysis_report.status === 'pending') {
         content.innerHTML = `
             <div style="text-align: center; padding: 40px;">
                 <div class="pulse" style="font-size: 1.2rem; color: var(--neon-cyan); margin-bottom: 16px;">AI 통합 마케팅 엔진 가동 중...</div>
-                <p style="color: var(--text-muted); margin-bottom: 24px;">Google Maps 상권 정보와 SNS 트렌드를 결합하여 4대 프레임워크 전략을 수립하고 있습니다.</p>
+                <p style="color: var(--text-muted); margin-bottom: 24px;">실시간으로 상권 데이터와 트렌드를 분석하여 4대 프레임워크를 수립하고 있습니다.</p>
                 <div class="framework-status" style="display: flex; justify-content: center; gap: 10px;">
                     <span class="status-badge" style="background: rgba(0,255,240,0.1);">STP</span>
                     <span class="status-badge" style="background: rgba(0,255,240,0.1);">AIDA</span>
-                    <span class="status-badge" style="background: rgba(0,255,240,0.1);">SWOT</span>
-                    <span class="status-badge" style="background: rgba(0,255,240,0.1);">4P MIX</span>
+                    <span class="status-badge" style="background: rgba(255,200,0,0.1);">SWOT</span>
+                    <span class="status-badge" style="background: rgba(0,200,255,0.1);">4P MIX</span>
                 </div>
             </div>
         `;
+
+        // Trigger analysis and refresh when done
+        triggerMarketAnalysis(clientId).then(() => {
+            // Re-call viewReport to show the results once finished
+            setTimeout(() => viewReport(clientId), 2500);
+        });
+
     } else {
         const report = client.analysis_report;
         content.innerHTML = `
@@ -208,8 +216,6 @@ async function viewReport(clientId) {
         `;
     }
 
-    modal.style.display = 'block';
-
     const closeBtn = document.querySelector('.close-modal');
     closeBtn.onclick = () => modal.style.display = 'none';
     window.onclick = (event) => {
@@ -218,19 +224,31 @@ async function viewReport(clientId) {
 }
 
 /**
- * UI Utilities
- */
-function showNotification(title, message, type = 'success') {
-    // 임시 알림 (추후 토스트 UI 구현 가능)
-    alert(`${title}\n${message}`);
-}
-
-/**
- * Market Analysis Trigger (Placeholder for real AI Engine)
+ * Market Analysis Trigger (Real AI Engine Integration)
  */
 async function triggerMarketAnalysis(clientId) {
     console.log(`Triggering Market Intelligence for: ${clientId}`);
-    // 실제 운영 환경에서는 Supabase Edge Function 또는 GitHub Action을 호출하여 
-    // Google Maps API 분석을 수행하고 결과를 업데이트합니다.
+    
+    try {
+        const { data, error } = await _supabase.functions.invoke('analyze-market', {
+            body: { clientId }
+        });
+
+        if (error) throw error;
+
+        console.log('Analysis Complete:', data);
+        await loadClients(); // Refresh dashboard UI
+        return data;
+
+    } catch (error) {
+        console.error('Market Analysis Error:', error);
+    }
+}
+
+/**
+ * UI Utilities
+ */
+function showNotification(title, message, type = 'success') {
+    alert(`${title}\n${message}`);
 }
 

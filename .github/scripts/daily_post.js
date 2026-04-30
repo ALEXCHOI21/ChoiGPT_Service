@@ -123,12 +123,11 @@ async function run() {
   
   // 카테고리별 실제 보유 자산 수 (v25.0 최신화)
   const assetCounts = {
-    'ai_marketing': 6,
     'ai_marketing': 2,
-    'web_dev': 8,
-    'hw_dev': 7,
+    'web_dev': 25,
+    'hw_dev': 40,
     'education': 2,
-    'mobile_app': 8
+    'mobile_app': 25
   };
 
   const maxNum = assetCounts[category] || 2;
