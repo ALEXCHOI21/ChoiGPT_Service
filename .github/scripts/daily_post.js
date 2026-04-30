@@ -112,7 +112,7 @@ async function run() {
   
   // 카테고리별 이미지 매핑
   const categoryMap = {
-    '24시간 자율형 AI 마케팅 에이전트': 'math_engine', // 성공 사례 기반 비주얼 강조
+    '24시간 자율형 AI 마케팅 에이전트': 'ai_marketing', // 성공 사례 기반 비주얼 강조
     'AI Agent 맞춤형 개발 및 비즈니스 솔루션': 'web_dev',
     '생산성 10배 향상 AI Agent 실무 교육': 'web_dev',
     '실전 아두이노 및 릴리패드 창의 교육': 'education',
@@ -123,7 +123,7 @@ async function run() {
   
   // 카테고리별 실제 보유 자산 수 (v25.0 최신화)
   const assetCounts = {
-    'math_engine': 6,
+    'ai_marketing': 6,
     'ai_marketing': 2,
     'web_dev': 8,
     'hw_dev': 7,
@@ -156,7 +156,7 @@ async function run() {
   const sanitize = (txt) => {
     return txt
       .normalize('NFC')
-      .replace(/[\u0000-\u001F\u007F-\u009F]/g, '')
+      .replace(/[\u0000-\u0009\u000B\u000C\u000E-\u001F\u007F-\u009F]/g, '') // \n(0A), \r(0D) 보존
       .replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, '')
       .trim();
   };
@@ -164,8 +164,8 @@ async function run() {
   // 깨짐 없는 표준 기호 사용 (\u25B6: ▶, \u25CF: ●)
   const footer = '\n\n\u25B6 \uD3EC\uD138: https://alexchoi21.github.io/ChoiGPT_Service/\n\u25CF \uBB38\uC758: https://open.kakao.com/o/syhiQlsi';
 
-  const finalIgCaption = sanitize(ig_caption + footer);
-  const finalFbCaption = sanitize(fb_caption + footer);
+  const finalIgCaption = sanitize(ig_caption + '\n\n' + footer);
+  const finalFbCaption = sanitize(fb_caption + '\n\n' + footer);
 
   console.log('--- FINAL CAPTION CHECK ---');
   console.log(finalFbCaption);

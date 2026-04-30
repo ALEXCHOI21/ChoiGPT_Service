@@ -149,10 +149,14 @@ nav {
     box-shadow: var(--cyan-glow);
 }
 
-.status-badge {
+.client-card .status-badge {
     position: absolute;
     top: 32px;
     right: 32px;
+}
+
+.status-badge {
+    display: inline-block;
     padding: 4px 12px;
     border-radius: 4px;
     font-size: 0.7rem;
