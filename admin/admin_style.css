@@ -201,6 +201,7 @@ select {
     background-repeat: no-repeat;
     background-position: right 12px center;
     background-size: 16px;
+    color-scheme: dark; /* 브라우저 기본 드롭다운을 다크 모드로 강제 */
 }
 
 select option {
