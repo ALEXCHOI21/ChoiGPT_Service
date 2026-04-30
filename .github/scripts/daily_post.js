@@ -6,16 +6,16 @@ const FB_ACCESS_TOKEN = (process.env.FB_ACCESS_TOKEN || '').trim();
 
 const themes = [
   {
-    topic: '최지피티 24/7 마케팅 마스터 (서비스 공식 런칭)',
-    usp: 'AI 엔진 기반 24시간 자율 마케팅 시스템. 1/3/6/12개월 맞춤형 상품 구성. 업계 최저 수준의 고효율 자동화 솔루션. 문의: cdrhy219@gmail.com',
-    weight: 6, // 최우선 홍보
+    topic: '최지피티(ChoiGPT) 24/7 마케팅 마스터',
+    usp: 'AI 엔진 기반 24시간 자율 마케팅 시스템. [Starter: 99만원/월], [Growth: 89만원/월], [Enterprise: 79만원/월]. 입에 착착 감기는 압도적 효율성. 문의: cdrhy219@gmail.com',
+    weight: 10, // 홍보 비중 극대화
     isFixedImage: true,
     fixedImagePath: 'service_info/infographic.png'
   },
   {
-    topic: '최지피티 B2B 마켓 인텔리전스 (AI 전략 분석 리포트)',
-    usp: 'STP, AIDA, SWOT, 4P 프레임워크를 기반으로 AI가 즉시 수립하는 최강의 마케팅 전략. 데이터 기반 지역 상권 정밀 분석 및 타겟팅.',
-    weight: 6, // 동일하게 최우선 가중치 부여
+    topic: '최지피티 B2B 마켓 인텔리전스 (전략분석 리포트)',
+    usp: 'STP, SWOT, 4P 등 전문가급 AI 전략 분석 리포트 제공. 월 69만원(12개월 기준)부터 시작하는 B2B 특화 솔루션. 데이터 기반의 완벽한 의사결정 지원.',
+    weight: 8,
     isFixedImage: true,
     fixedImagePath: 'service_info/infographic.png'
   },
@@ -26,23 +26,13 @@ const themes = [
   },
   {
     topic: 'AI Agent 맞춤형 개발 및 비즈니스 솔루션',
-    usp: 'Antigravity Math Engine 같은 고성능 업무 툴 제작, 반복 업무 90% 자동화, 비즈니스 성장에 따른 유연한 확장성',
-    weight: 4 // 2순위
+    usp: '비즈니스 반복 업무 90% 자동화, Antigravity Math Engine 같은 고성능 업무 툴 제작 전문. 비즈니스 확장에 최적화된 유연한 설계.',
+    weight: 4
   },
   {
     topic: '생산성 10배 향상 AI Agent 실무 교육',
-    usp: '현업 즉시 적용 가능한 LLM 프롬프트 엔지니어링, 업무 자동화 에이전트 마스터링, 기업별 맞춤형 컨설팅',
-    weight: 3 // 3순위
-  },
-  {
-    topic: '실전 아두이노 및 릴리패드 창의 교육',
-    usp: '단 하루 만에 완성하는 실전 IoT 시제품 제작, 특허 기술 기반 릴리패드 키트 활용, 비전공자도 가능한 커리큘럼',
-    weight: 2 // 4순위
-  },
-  {
-    topic: 'AI 기반 HW/SW 고속 개발 서비스',
-    usp: '업계 평균 대비 3배 빠른 프로토타이핑, AI 자동 PCB 라우팅으로 개발 기간 70% 단축, HW/SW 통합 솔루션',
-    weight: 1 // 5순위
+    usp: '현업 즉시 적용 가능한 LLM 프롬프트 엔지니어링, 업무 자동화 에이전트 마스터링 컨설팅. 기업 맞춤형 출강 지원.',
+    weight: 3
   }
 ];
 
@@ -176,8 +166,8 @@ async function run() {
       .trim();
   };
 
-  // 깨짐 없는 표준 기호 사용 (\u25B6: ▶, \u25CF: ●)
-  const footer = '\n\n\u25B6 \uD3EC\uD138: https://alexchoi21.github.io/ChoiGPT_Service/\n\u25CF \uBB38\uC758: https://open.kakao.com/o/syhiQlsi';
+  // 깨짐 없는 표준 기호 사용 (▶, ●, ✉)
+  const footer = '\n\n▶ 포털: https://alexchoi21.github.io/ChoiGPT_Service/\n● 카톡: https://open.kakao.com/o/syhiQlsi\n✉ 이메일: cdrhy219@gmail.com';
 
   const finalIgCaption = sanitize(ig_caption + '\n\n' + footer);
   const finalFbCaption = sanitize(fb_caption + '\n\n' + footer);
