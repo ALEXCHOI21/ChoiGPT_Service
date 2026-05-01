@@ -5,33 +5,36 @@ const FB_PAGE_ID = (process.env.FB_PAGE_ID || '').trim();
 const FB_ACCESS_TOKEN = (process.env.FB_ACCESS_TOKEN || '').trim();
 
 async function generateContent(prompt, retries = 5) {
-            for (let i = 0; i < retries; i++) {
-                          const delay = Math.pow(2, i) * 10000;
-                          try {
-                                          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
-                                                            method: 'POST',
-                                                            headers: { 'Content-Type': 'application/json' },
-                                                            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-                                          });
-                                          const data = await res.json();
-                                          if (res.status === 429) {
-                                                            console.log(`Rate limited (429). Waiting ${delay/1000}s before retry ${i+1}/${retries}...`);
-                                                            await new Promise(r => setTimeout(r, delay));
-                                                            continue;
-                                          }
-                                          if (!res.ok) throw new Error(`Gemini Error: ${JSON.stringify(data)}`);
-                                          if (!data.candidates || data.candidates.length === 0) throw new Error('No candidates returned from Gemini');
-                                          
-                                          const text = data.candidates[0].content.parts[0].text;
-                                          const jsonMatch = text.match(/\{[\s\S]*\}/);
-                                          if (!jsonMatch) throw new Error(`No JSON found in response: ${text}`);
-                                          return jsonMatch[0];
-                          } catch (e) {
-                                          if (i === retries - 1) throw e;
-                                          console.log(`Retry ${i+1}/${retries} after error: ${e.message}`);
-                                          await new Promise(r => setTimeout(r, delay));
-                          }
+    for (let i = 0; i < retries; i++) {
+        const delay = Math.pow(2, i) * 10000;
+        try {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            });
+            const data = await res.json();
+            
+            if (res.status === 429) {
+                console.log(`Rate limited (429). Waiting ${delay/1000}s before retry ${i+1}/${retries}...`);
+                await new Promise(r => setTimeout(r, delay));
+                continue;
             }
+            
+            if (!res.ok) throw new Error(`Gemini Error: ${JSON.stringify(data)}`);
+            if (!data.candidates || data.candidates.length === 0) throw new Error('No candidates returned from Gemini');
+            
+            const text = data.candidates[0].content.parts[0].text;
+            const jsonMatch = text.match(/\{[\s\S]*\}/);
+            if (!jsonMatch) throw new Error(`No JSON found in response: ${text}`);
+            return jsonMatch[0];
+        } catch (e) {
+            if (i === retries - 1) throw e;
+            console.log(`Retry ${i+1}/${retries} after error: ${e.message}`);
+            await new Promise(r => setTimeout(r, delay));
+        }
+    }
+    throw new Error('Gemini API failed after all retries due to rate limiting.');
 }
 
 async function run() {
