@@ -6,9 +6,9 @@ const FB_ACCESS_TOKEN = (process.env.FB_ACCESS_TOKEN || '').trim();
 
 const themes = [
   {
-    topic: '최지피티 24/7 마케팅 마스터 (서비스 공식 런칭)',
-    usp: 'AI 엔진 기반 24시간 자율 마케팅 시스템. 1/3/6/12개월 맞춤형 상품 구성. 업계 최저 수준의 고효율 자동화 솔루션. 문의: cdrhy219@gmail.com',
-    weight: 6, // 최우선 홍보
+    topic: '최이지피티(ChoiGPT) 24/7 마케팅 마스터',
+    usp: 'AI 실시간 상권 분석 및 24시간 자동 포스팅 시스템. [출시 기념 50% OFF] 1개월(Basic) 9.9만원, 2개월(Starter) 18만원. 전문가급 STP/AIDA/SWOT/4P 리포트 자동 생성. 문의: cdrhy219@gmail.com / 카톡 오픈채팅',
+    weight: 100, // 최우선 홍보 가중치 (고정)
     isFixedImage: true,
     fixedImagePath: 'service_info/infographic.png'
   },
@@ -86,12 +86,18 @@ async function generateContent(selected) {
         throw new Error(`Gemini Error: ${JSON.stringify(data)}`);
       }
       
-      const rawText = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
+      const text = data.candidates[0].content.parts[0].text;
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error(`No JSON found in response: ${text}`);
+      }
+      
+      const rawText = jsonMatch[0];
       let parsed;
       try {
         parsed = JSON.parse(rawText);
       } catch (err) {
-        console.error('JSON Parse Error. Raw Text:', rawText);
+        console.error('JSON Parse Error. Cleaned Text:', rawText);
         throw err;
       }
       

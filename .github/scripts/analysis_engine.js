@@ -81,22 +81,30 @@ async function generateGeminiReport(client, searchData) {
         
         다음 구조로 JSON 형식으로만 응답해주세요:
         {
-            "online_presence": "현재 네이버, 인스타그램 등에서의 노출 정도와 소비자 반응 요약",
-            "location_analysis": "입지 조건과 주변 경쟁 업체 대비 강점/약점 분석",
-            "suggestions": "${client.marketing_methodology} 방법론을 적용한 구체적인 마케팅 실행 전략 제언",
-            "summary": "한 줄 요약"
+            "stp": "STP(Segmentation, Targeting, Positioning) 분석 결과",
+            "aida": "AIDA(Attention, Interest, Desire, Action) 단계별 전략",
+            "swot": "SWOT(Strengths, Weaknesses, Opportunities, Threats) 분석",
+            "four_p": "4P(Product, Price, Place, Promotion) 믹스 제안",
+            "conclusion": "전체 마케팅 전략 한 줄 요약"
         }
     `;
 
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
     });
     
     const data = await res.json();
-    const rawText = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
-    return JSON.parse(rawText);
+    if (!data.candidates || !data.candidates[0]) {
+        throw new Error(`Gemini Error: ${JSON.stringify(data)}`);
+    }
+    const text = data.candidates[0].content.parts[0].text;
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+        throw new Error(`No JSON found in response: ${text}`);
+    }
+    return JSON.parse(jsonMatch[0]);
 }
 
 runAnalysis();
