@@ -6,33 +6,43 @@ const FB_ACCESS_TOKEN = (process.env.FB_ACCESS_TOKEN || '').trim();
 
 const themes = [
   {
-    topic: '최이지피티(ChoiGPT) 24/7 마케팅 마스터',
-    usp: 'AI 실시간 상권 분석 및 24시간 자동 포스팅 시스템. [Basic(55만/주2회)], [Starter(148만/주3회)], [Growth(264만/주5회)], [Enterprise(462만/매일)]. 전문가급 STP/SWOT 리포트 자동 생성. 문의: cdrhy219@gmail.com / 카톡 오픈채팅',
-    weight: 100, // 최우선 홍보 가중치
+    topic: '최지피티 24/7 마케팅 마스터 (서비스 공식 런칭)',
+    usp: 'AI 엔진 기반 24시간 자율 마케팅 시스템. 1/3/6/12개월 맞춤형 상품 구성. 업계 최저 수준의 고효율 자동화 솔루션. 문의: cdrhy219@gmail.com',
+    weight: 6, // 최우선 홍보
     isFixedImage: true,
     fixedImagePath: 'service_info/infographic.png'
   },
   {
-    topic: '최지피티 B2B 마켓 인텔리전스 (전략분석 리포트)',
-    usp: 'STP, SWOT, 4P 등 전문가급 AI 전략 분석 리포트 제공. 월 69만원(12개월 기준)부터 시작하는 B2B 특화 솔루션. 데이터 기반의 완벽한 의사결정 지원.',
-    weight: 5,
+    topic: '최지피티 B2B 마켓 인텔리전스 (AI 전략 분석 리포트)',
+    usp: 'STP, AIDA, SWOT, 4P 프레임워크를 기반으로 AI가 즉시 수립하는 최강의 마케팅 전략. 데이터 기반 지역 상권 정밀 분석 및 타겟팅.',
+    weight: 6, // 동일하게 최우선 가중치 부여
     isFixedImage: true,
     fixedImagePath: 'service_info/infographic.png'
   },
   {
     topic: '24시간 자율형 AI 마케팅 에이전트',
     usp: '성공사례: Antigravity Math Engine 마케팅 자동화 달성, 실시간 데이터 분석 기반 키워드 타격, 기존 대비 도달률 300% 향상',
-    weight: 2
+    weight: 5
   },
   {
     topic: 'AI Agent 맞춤형 개발 및 비즈니스 솔루션',
-    usp: '비즈니스 반복 업무 90% 자동화, Antigravity Math Engine 같은 고성능 업무 툴 제작 전문. 비즈니스 확장에 최적화된 유연한 설계.',
-    weight: 2
+    usp: 'Antigravity Math Engine 같은 고성능 업무 툴 제작, 반복 업무 90% 자동화, 비즈니스 성장에 따른 유연한 확장성',
+    weight: 4 // 2순위
   },
   {
     topic: '생산성 10배 향상 AI Agent 실무 교육',
-    usp: '현업 즉시 적용 가능한 LLM 프롬프트 엔지니어링, 업무 자동화 에이전트 마스터링 컨설팅. 기업 맞춤형 출강 지원.',
-    weight: 1
+    usp: '현업 즉시 적용 가능한 LLM 프롬프트 엔지니어링, 업무 자동화 에이전트 마스터링, 기업별 맞춤형 컨설팅',
+    weight: 3 // 3순위
+  },
+  {
+    topic: '실전 아두이노 및 릴리패드 창의 교육',
+    usp: '단 하루 만에 완성하는 실전 IoT 시제품 제작, 특허 기술 기반 릴리패드 키트 활용, 비전공자도 가능한 커리큘럼',
+    weight: 2 // 4순위
+  },
+  {
+    topic: 'AI 기반 HW/SW 고속 개발 서비스',
+    usp: '업계 평균 대비 3배 빠른 프로토타이핑, AI 자동 PCB 라우팅으로 개발 기간 70% 단축, HW/SW 통합 솔루션',
+    weight: 1 // 5순위
   }
 ];
 
@@ -40,21 +50,26 @@ async function generateContent(selected) {
   const prompt = `스타트업 ChoiGPT 홍보를 위해 다음 주제에 대한 강력한 마케팅 콘텐츠를 생성해줘.
   주제: ${selected.topic}
   핵심 강점(USP): ${selected.usp}
-  관련 링크: https://choigpt.tistory.com/253 (성공 사례 참고)
-  문의처: 이메일(cdrhy219@gmail.com) 및 카카오톡 오픈채팅
+  관련 링크: https://choigpt.tistory.com/253 (Antigravity Math Engine 성공 사례 참고)
   
   작성 규칙 (절대 준수):
-  1. 제공된 USP 정보 외에 절대 허위 사실을 지어내지 말 것.
+  1. 제공된 USP 정보 외에 절대 특정 대학 이름, 팀 구성, 이력을 지어내지 말 것. (허위 사실 기재 금지)
   2. 반드시 [Hook] -> [3가지 핵심 특징] -> [혜택/가치] -> [CTA] 구조를 따를 것.
   3. 절대로 본문에 [Hook], [특징], [CTA] 같은 라벨을 직접 쓰지 말 것. 내용만 자연스럽게 작성할 것.
-  4. 문구 마지막에 문의처(이메일, 카톡)를 자연스럽게 포함하여 안내할 것.
-  5. 문장마다 줄바꿈을 넣어 가독성을 극대화할 것.
+  4. "70% 단축", "3배 빠른" 같은 구체적인 수치를 적극 활용할 것.
+  5. 문장마다 반드시 줄바꿈을 넣어 가독성을 높일 것.
   
-  응답은 반드시 아래 JSON 형식으로만 출력해:
+  응답은 반드시 아래 JSON 형식으로만 출력해 (마크다운 없이 순수 JSON만):
   {
     "ig_caption": "인스타그램용 문구 (감성적 임팩트, 해시태그 포함)",
     "fb_caption": "페이스북용 문구 (비즈니스 임팩트, 신뢰감)",
-    "imagePrompt": "A clean, minimalist professional photography of a modern high-end workspace."
+    "imagePrompt": "A clean, minimalist professional photography of ${
+      selected.topic.includes('아두이노') ? 'an Arduino board on a bright wooden desk with soft natural sunlight' : 
+      selected.topic.includes('웹사이트') ? 'a sleek laptop showing a clean minimalist website layout on a white marble table with a cup of coffee' :
+      selected.topic.includes('모바일') ? 'a modern smartphone held naturally in a hand showing a minimalist UI design, soft blurred office background' :
+      selected.topic.includes('시스템') ? 'a high-end server room with clean white lighting and organized cables, professional perspective' :
+      'a bright, modern minimalist workspace with soft natural light and high-end tech gadgets'
+    }. Shot on Sony A7R IV, 35mm lens, f/2.8, hyper-realistic, professional lighting, clean composition, no glowing neon, no futuristic effects, realistic textures, 8k."
   }`;
   
   for (let attempt = 1; attempt <= 3; attempt++) {
@@ -67,8 +82,18 @@ async function generateContent(selected) {
       const data = await res.json();
       if (res.status === 429) { await new Promise(r => setTimeout(r, 5000)); continue; }
       
+      if (!data.candidates || !data.candidates[0]) {
+        throw new Error(`Gemini Error: ${JSON.stringify(data)}`);
+      }
+      
       const rawText = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
-      let parsed = JSON.parse(rawText);
+      let parsed;
+      try {
+        parsed = JSON.parse(rawText);
+      } catch (err) {
+        console.error('JSON Parse Error. Raw Text:', rawText);
+        throw err;
+      }
       
       const clean = (txt) => txt
         .normalize('NFC')
@@ -161,8 +186,8 @@ async function run() {
       .trim();
   };
 
-  // 깨짐 없는 표준 기호 사용 (▶, ●, ✉)
-  const footer = '\n\n▶ 포털: https://alexchoi21.github.io/ChoiGPT_Service/\n● 카톡: https://open.kakao.com/o/syhiQlsi\n✉ 이메일: cdrhy219@gmail.com';
+  // 깨짐 없는 표준 기호 사용 (\u25B6: ▶, \u25CF: ●)
+  const footer = '\n\n\u25B6 \uD3EC\uD138: https://alexchoi21.github.io/ChoiGPT_Service/\n\u25CF \uBB38\uC758: https://open.kakao.com/o/syhiQlsi';
 
   const finalIgCaption = sanitize(ig_caption + '\n\n' + footer);
   const finalFbCaption = sanitize(fb_caption + '\n\n' + footer);
