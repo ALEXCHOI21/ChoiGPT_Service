@@ -174,10 +174,9 @@ async function viewReport(clientId) {
             </div>
         `;
 
-        // Trigger analysis and refresh when done
+        // 분석 완료 후 즉시 모달 갱신
         triggerMarketAnalysis(clientId).then(() => {
-            // Re-call viewReport to show the results once finished
-            setTimeout(() => viewReport(clientId), 2500);
+            viewReport(clientId);
         });
 
     } else {
@@ -224,24 +223,106 @@ async function viewReport(clientId) {
 }
 
 /**
- * Market Analysis Trigger (Real AI Engine Integration)
+ * Market Analysis Trigger
+ * Edge Function 우회 → Gemini API 직접 호출 방식으로 변경
  */
 async function triggerMarketAnalysis(clientId) {
-    console.log(`Triggering Market Intelligence for: ${clientId}`);
-    
+    console.log(`[마켓 인텔리전스] 분석 시작: ${clientId}`);
+
     try {
-        const { data, error } = await _supabase.functions.invoke('analyze-market', {
-            body: { clientId }
-        });
+        // 1. 클라이언트 정보 조회
+        const { data: client, error: fetchError } = await _supabase
+            .from('marketing_clients')
+            .select('*')
+            .eq('id', clientId)
+            .single();
 
-        if (error) throw error;
+        if (fetchError || !client) throw new Error('클라이언트 정보를 불러오지 못했습니다.');
 
-        console.log('Analysis Complete:', data);
-        await loadClients(); // Refresh dashboard UI
-        return data;
+        console.log(`[마켓 인텔리전스] ${client.business_name} 분석 중...`);
+
+        // 2. Gemini API 직접 호출
+        const GEMINI_KEY = 'AIzaSyAjMvMcbg-CtVuz3iJN89dga_95pT2711A';
+        const prompt = `당신은 대한민국 최고의 마케팅 전략가입니다. 아래 업체에 대해 실제 시장 분석을 수행하고, 구체적이고 실행 가능한 전략을 수립해 주세요.
+
+[업체 정보]
+- 상호명: ${client.business_name}
+- 기본 정보: ${client.business_info || '정보 없음'}
+- 적용 방법론: ${client.marketing_methodology || 'STP, AIDA, SWOT, 4P 통합 분석'}
+
+[분석 요구사항]
+- 해당 업체의 실제 특성을 반영하여 구체적으로 작성해주세요.
+- 한국어로 작성하며, HTML 태그(<b>, <br>)를 활용하여 가독성 있게 구성하세요.
+
+아래 JSON 형식으로만 응답해주세요 (마크다운 코드 블록 없이 순수 JSON만):
+{
+  "stp": "<b>[Segmentation]</b> (구체적인 고객 세분화)<br><b>[Targeting]</b> (핵심 타겟 고객층 설명)<br><b>[Positioning]</b> (차별화 포지셔닝 전략)",
+  "aida": "<b>[Attention]</b> (주목을 끄는 훅 전략)<br><b>[Interest]</b> (관심 유발 방법)<br><b>[Desire]</b> (구매 욕구 촉진 방법)<br><b>[Action]</b> (구체적인 CTA 전략)",
+  "swot": "<b>[Strength]</b> (내부 강점 2-3가지)<br><b>[Weakness]</b> (내부 약점 1-2가지)<br><b>[Opportunity]</b> (외부 기회 요인)<br><b>[Threat]</b> (외부 위협 요인)",
+  "four_p": "<b>[Product]</b> (차별화된 서비스/상품 전략)<br><b>[Price]</b> (가격 전략)<br><b>[Place]</b> (입지/유통 전략)<br><b>[Promotion]</b> (구체적인 홍보 채널 및 방법)",
+  "conclusion": "해당 업체의 핵심 성공 전략을 한 문장으로 요약"
+}`;
+
+        const geminiRes = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }],
+                    generationConfig: { temperature: 0.7 }
+                })
+            }
+        );
+
+        if (!geminiRes.ok) {
+            const errText = await geminiRes.text();
+            throw new Error(`Gemini API 오류 (${geminiRes.status}): ${errText}`);
+        }
+
+        const geminiData = await geminiRes.json();
+
+        if (!geminiData.candidates || !geminiData.candidates[0]) {
+            throw new Error(`Gemini 응답 없음: ${JSON.stringify(geminiData)}`);
+        }
+
+        const rawText = geminiData.candidates[0].content.parts[0].text
+            .replace(/```json/g, '')
+            .replace(/```/g, '')
+            .trim();
+
+        let parsedReport;
+        try {
+            parsedReport = JSON.parse(rawText);
+        } catch (e) {
+            throw new Error(`JSON 파싱 실패. 원문: ${rawText.substring(0, 300)}`);
+        }
+
+        // 3. Supabase에 분석 결과 저장
+        const analysis = {
+            status: 'completed',
+            stp: parsedReport.stp,
+            aida: parsedReport.aida,
+            swot: parsedReport.swot,
+            four_p: parsedReport.four_p,
+            conclusion: parsedReport.conclusion,
+            timestamp: new Date().toISOString()
+        };
+
+        const { error: updateError } = await _supabase
+            .from('marketing_clients')
+            .update({ analysis_report: analysis })
+            .eq('id', clientId);
+
+        if (updateError) throw new Error('DB 저장 실패: ' + updateError.message);
+
+        console.log(`[마켓 인텔리전스] ${client.business_name} 분석 완료!`);
+        await loadClients();
+        return analysis;
 
     } catch (error) {
-        console.error('Market Analysis Error:', error);
+        console.error('[마켓 인텔리전스] 오류:', error.message);
+        showNotification('분석 오류', error.message, 'error');
     }
 }
 
