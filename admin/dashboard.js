@@ -23,9 +23,74 @@ window.switchReportTab = function(tabName) {
     document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     
-    document.getElementById(`${tabName}-tab`).style.display = 'block';
+    const targetPane = document.getElementById(`${tabName}-tab`);
+    if (targetPane) {
+        targetPane.style.display = (tabName === 'toolkit' || tabName === 'strategy') ? 'block' : 'block';
+    }
     event.currentTarget.classList.add('active');
 };
+
+// Google Maps API 동적 로드 및 지도 초기화
+async function initMarketMap(containerId, locationInfo, businessName) {
+    let MAPS_KEY = localStorage.getItem('CHOIGPT_MAPS_KEY');
+    if (!MAPS_KEY) {
+        MAPS_KEY = prompt('Google Maps API Key가 필요합니다. (상권 분석용)\n키를 입력해 주세요:');
+        if (MAPS_KEY) localStorage.setItem('CHOIGPT_MAPS_KEY', MAPS_KEY.trim());
+        else return;
+    }
+
+    if (!window.google) {
+        await new Promise((resolve) => {
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${MAPS_KEY}&libraries=places`;
+            script.onload = resolve;
+            document.head.appendChild(script);
+        });
+    }
+
+    const geocoder = new google.maps.Geocoder();
+    geocoder.geocode({ address: locationInfo }, (results, status) => {
+        if (status === 'OK') {
+            const location = results[0].geometry.location;
+            const map = new google.maps.Map(document.getElementById(containerId), {
+                center: location,
+                zoom: 15,
+                styles: [
+                    { "elementType": "geometry", "stylers": [{ "color": "#212121" }] },
+                    { "elementType": "labels.text.fill", "stylers": [{ "color": "#757575" }] },
+                    { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#000000" }] }
+                ]
+            });
+
+            // 우리 업체 마커
+            new google.maps.Marker({
+                position: location,
+                map: map,
+                title: businessName,
+                icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+            });
+
+            // 주변 경쟁사 검색 (Places API)
+            const service = new google.maps.places.PlacesService(map);
+            service.nearbySearch({
+                location: location,
+                radius: 800,
+                type: ['store', 'restaurant', 'cafe'] // 필요 시 동적 변경 가능
+            }, (results, status) => {
+                if (status === google.maps.places.PlacesServiceStatus.OK) {
+                    results.forEach(place => {
+                        new google.maps.Marker({
+                            position: place.geometry.location,
+                            map: map,
+                            title: place.name,
+                            icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
+                        });
+                    });
+                }
+            });
+        }
+    });
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Mission Control Initialized...");
@@ -201,6 +266,7 @@ async function viewReport(clientId) {
             <div class="report-tabs" style="display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px;">
                 <button class="tab-btn active" onclick="switchReportTab('strategy')">핵심 전략</button>
                 <button class="tab-btn" onclick="switchReportTab('toolkit')">마케팅 툴킷 🚀</button>
+                <button class="tab-btn" onclick="switchReportTab('map')">상권 분석 지도 🗺️</button>
             </div>
             <div id="strategy-tab" class="tab-pane active">
                 <div class="report-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
@@ -246,8 +312,24 @@ async function viewReport(clientId) {
                     <p style="letter-spacing:1px; color:#FFB8F9; font-size:0.9rem;">${result.toolkit.hashtags}</p>
                 </div>
             </div>
+            <div id="map-tab" class="tab-pane" style="display:none;">
+                <div id="market-map" style="width:100%; height:450px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.2);">
+                    <div style="display:flex; align-items:center; justify-content:center; height:100%; color:var(--text-muted);">
+                        지도 데이터를 불러오는 중...
+                    </div>
+                </div>
+                <div class="map-info" style="margin-top:16px; display:flex; justify-content:space-between; font-size:0.85rem; color:var(--text-muted);">
+                    <span>📍 붉은색 마커: 경쟁 업체</span>
+                    <span>⭕ 푸른색 영역: 핵심 상권</span>
+                </div>
+            </div>
         `;
         content.innerHTML = reportTabs;
+        
+        // 지도 초기화 (비동기)
+        if (client.business_info) {
+            setTimeout(() => initMarketMap('market-map', client.business_info, client.business_name), 300);
+        }
     }
 
     const closeBtn = document.querySelector('.close-modal');
