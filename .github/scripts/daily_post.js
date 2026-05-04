@@ -68,8 +68,8 @@ async function generateContent(selected, retries = 5) {
   for (let i = 0; i < retries; i++) {
     const delay = Math.pow(2, i) * 10000;
     try {
-      // 가장 검증된 v1beta 엔드포인트와 모델명 사용
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+      // 사용자 API 키 권한에 맞는 최신 gemini-2.0-flash 모델 사용
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
       const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
