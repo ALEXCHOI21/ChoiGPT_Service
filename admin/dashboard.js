@@ -277,6 +277,10 @@ async function triggerMarketAnalysis(clientId) {
 
         if (!geminiRes.ok) {
             const errText = await geminiRes.text();
+            if (geminiRes.status === 400 || geminiRes.status === 401) {
+                localStorage.removeItem('CHOIGPT_GEMINI_KEY');
+                console.warn('[Security] Invalid Gemini Key removed from localStorage');
+            }
             throw new Error(`Gemini API 오류 (${geminiRes.status}): ${errText}`);
         }
 
@@ -331,5 +335,17 @@ async function triggerMarketAnalysis(clientId) {
  */
 function showNotification(title, message, type = 'success') {
     alert(`${title}\n${message}`);
+}
+
+/**
+ * Reset API Keys
+ */
+function resetKeys() {
+    if (confirm('모든 API 키를 초기화하시겠습니까?\n다음 접속 시 키를 다시 입력해야 합니다.')) {
+        localStorage.removeItem('CHOIGPT_SUPABASE_KEY');
+        localStorage.removeItem('CHOIGPT_GEMINI_KEY');
+        alert('키가 초기화되었습니다. 페이지를 새로고침합니다.');
+        location.reload();
+    }
 }
 
