@@ -261,7 +261,9 @@ async function viewReport(clientId) {
         });
 
     } else {
-        const result = client.analysis_report;
+        const result = client.analysis_report || {};
+        const toolkit = result.toolkit || { hooks: [], hashtags: "데이터를 불러오는 중...", action_plan: [] };
+
         const reportTabs = `
             <div class="report-tabs" style="display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px;">
                 <button class="tab-btn active" onclick="switchReportTab('strategy')">핵심 전략</button>
@@ -272,24 +274,24 @@ async function viewReport(clientId) {
                 <div class="report-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
                     <section class="glass-card" style="padding: 1.5rem; border-color: rgba(0,255,240,0.2);">
                         <h4 style="color: var(--neon-cyan); font-size: 0.75rem; letter-spacing: 0.1em; margin-bottom: 12px;">01. STP 전략</h4>
-                        <div style="font-size: 0.85rem; color: var(--text-secondary);">${result.stp}</div>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary);">${result.stp || '분석 중...'}</div>
                     </section>
                     <section class="glass-card" style="padding: 1.5rem; border-color: rgba(255,100,255,0.2);">
                         <h4 style="color: #ff64ff; font-size: 0.75rem; letter-spacing: 0.1em; margin-bottom: 12px;">02. AIDA 모델</h4>
-                        <div style="font-size: 0.85rem; color: var(--text-secondary);">${result.aida}</div>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary);">${result.aida || '분석 중...'}</div>
                     </section>
                     <section class="glass-card" style="padding: 1.5rem; border-color: rgba(255,200,0,0.2);">
                         <h4 style="color: #ffc800; font-size: 0.75rem; letter-spacing: 0.1em; margin-bottom: 12px;">03. SWOT 분석</h4>
-                        <div style="font-size: 0.85rem; color: var(--text-secondary);">${result.swot}</div>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary);">${result.swot || '분석 중...'}</div>
                     </section>
                     <section class="glass-card" style="padding: 1.5rem; border-color: rgba(0,200,255,0.2);">
                         <h4 style="color: #00c8ff; font-size: 0.75rem; letter-spacing: 0.1em; margin-bottom: 12px;">04. 4P 마케팅 믹스</h4>
-                        <div style="font-size: 0.85rem; color: var(--text-secondary);">${result.four_p}</div>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary);">${result.four_p || '분석 중...'}</div>
                     </section>
                 </div>
                 <div style="margin-top: 24px; padding: 16px; background: rgba(255,255,255,0.02); border-radius: 4px;">
                     <h4 style="color: var(--neon-cyan); font-size: 0.8rem; margin-bottom: 8px;">마켓 인텔리전스 결론</h4>
-                    <p style="font-size: 0.9rem; color: var(--text-primary);">${result.conclusion}</p>
+                    <p style="font-size: 0.9rem; color: var(--text-primary);">${result.conclusion || '통합 분석 중입니다.'}</p>
                 </div>
             </div>
             <div id="toolkit-tab" class="tab-pane" style="display:none;">
@@ -297,19 +299,19 @@ async function viewReport(clientId) {
                     <div class="toolkit-card" style="padding:20px; background:rgba(255,255,255,0.03); border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
                         <h3 style="color:#FFD700; margin-bottom:15px; font-size:1rem;">📣 SNS 후킹 멘트</h3>
                         <ul style="list-style:none; padding:0;">
-                            ${result.toolkit.hooks.map(h => `<li style="margin-bottom:12px; padding:12px; background:rgba(255,255,255,0.05); border-radius:8px; font-size:0.95rem;">${h}</li>`).join('')}
+                            ${(toolkit.hooks || []).map(h => `<li style="margin-bottom:12px; padding:12px; background:rgba(255,255,255,0.05); border-radius:8px; font-size:0.95rem;">${h}</li>`).join('') || '<li style="color:var(--text-muted);">분석 데이터가 없습니다. 다시 분석을 돌려주세요.</li>'}
                         </ul>
                     </div>
                     <div class="toolkit-card" style="padding:20px; background:rgba(255,255,255,0.03); border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
                         <h3 style="color:#00FFA2; margin-bottom:15px; font-size:1rem;">📅 주간 액션 플랜</h3>
                         <ul style="list-style:none; padding:0;">
-                            ${result.toolkit.action_plan.map(p => `<li style="margin-bottom:10px; border-left:3px solid #00FFA2; padding-left:12px; font-size:0.9rem;">${p}</li>`).join('')}
+                            ${(toolkit.action_plan || []).map(p => `<li style="margin-bottom:10px; border-left:3px solid #00FFA2; padding-left:12px; font-size:0.9rem;">${p}</li>`).join('') || '<li style="color:var(--text-muted);">분석 데이터가 없습니다.</li>'}
                         </ul>
                     </div>
                 </div>
                 <div class="hashtag-card" style="margin-top:20px; padding:20px; background:rgba(255,255,255,0.03); border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
                     <h3 style="color:#FF00E5; margin-bottom:12px; font-size:1rem;">#️⃣ 추천 해시태그</h3>
-                    <p style="letter-spacing:1px; color:#FFB8F9; font-size:0.9rem;">${result.toolkit.hashtags}</p>
+                    <p style="letter-spacing:1px; color:#FFB8F9; font-size:0.9rem;">${toolkit.hashtags || '해시태그 데이터 없음'}</p>
                 </div>
             </div>
             <div id="map-tab" class="tab-pane" style="display:none;">
@@ -320,7 +322,7 @@ async function viewReport(clientId) {
                 </div>
                 <div class="map-info" style="margin-top:16px; display:flex; justify-content:space-between; font-size:0.85rem; color:var(--text-muted);">
                     <span>📍 붉은색 마커: 경쟁 업체</span>
-                    <span>⭕ 푸른색 영역: 핵심 상권</span>
+                    <span>📍 푸른색 마커: 우리 업체</span>
                 </div>
             </div>
         `;
