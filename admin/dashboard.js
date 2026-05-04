@@ -2,7 +2,14 @@
 // Standardized for Obsidian Sentinel Design System
 
 const SUPABASE_URL = 'https://bxtrfsjcxknmbopctvaw.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ4dHJmc2pjeGtubWJvcGN0dmF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyMjAzNTAsImV4cCI6MjA4Njc5NjM1MH0.T95GvNYbpVU7um3WW2eyqikgWDn-dwsQ3zPxTM4rfhM';
+let SUPABASE_KEY = localStorage.getItem('CHOIGPT_SUPABASE_KEY');
+if (!SUPABASE_KEY) {
+    SUPABASE_KEY = prompt('Supabase API Key가 설정되지 않았습니다. 키를 입력해 주세요:');
+    if (SUPABASE_KEY) {
+        localStorage.setItem('CHOIGPT_SUPABASE_KEY', SUPABASE_KEY.trim());
+    }
+}
+SUPABASE_KEY = SUPABASE_KEY ? SUPABASE_KEY.trim() : '';
 
 // Initialize Supabase client correctly
 const { createClient } = supabase;
@@ -241,8 +248,17 @@ async function triggerMarketAnalysis(clientId) {
 
         console.log(`[마켓 인텔리전스] ${client.business_name} 분석 중...`);
 
-        // 2. Gemini API 직접 호출
-        const GEMINI_KEY = 'AIzaSyAjMvMcbg-CtVuz3iJN89dga_95pT2711A';
+        // [보안] 하드코딩된 키 제거: 로컬 스토리지에서 로드
+        let GEMINI_KEY = localStorage.getItem('CHOIGPT_GEMINI_KEY');
+        if (!GEMINI_KEY) {
+            GEMINI_KEY = prompt('Gemini API Key가 설정되지 않았습니다.\n새로 발급받으신 키를 입력해 주세요:');
+            if (GEMINI_KEY) {
+                localStorage.setItem('CHOIGPT_GEMINI_KEY', GEMINI_KEY.trim());
+            } else {
+                throw new Error('API 키 입력 없이는 분석을 진행할 수 없습니다.');
+            }
+        }
+        GEMINI_KEY = GEMINI_KEY.trim();
         const prompt = `당신은 대한민국 최고의 마케팅 전략가입니다. 아래 업체에 대해 실제 시장 분석을 수행하고, 구체적이고 실행 가능한 전략을 수립해 주세요.
 
 [업체 정보]
