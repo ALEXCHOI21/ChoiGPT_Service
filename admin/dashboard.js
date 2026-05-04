@@ -25,7 +25,14 @@ window.switchReportTab = function(tabName) {
     
     const targetPane = document.getElementById(`${tabName}-tab`);
     if (targetPane) {
-        targetPane.style.display = (tabName === 'toolkit' || tabName === 'strategy') ? 'block' : 'block';
+        targetPane.style.display = 'block';
+        // 지도의 경우 탭 전환 시 크기 재계산이 필요할 수 있음
+        if (tabName === 'map' && window.google) {
+            const mapContainer = document.getElementById('market-map');
+            if (mapContainer && !mapContainer.dataset.initialized) {
+                // 이미 데이터가 로드된 상태라면 여기서 다시 시도 가능
+            }
+        }
     }
     event.currentTarget.classList.add('active');
 };
@@ -49,9 +56,13 @@ async function initMarketMap(containerId, locationInfo, businessName) {
     }
 
     const geocoder = new google.maps.Geocoder();
+    console.log(`[지도] 지오코딩 시작: ${locationInfo}`);
+    
     geocoder.geocode({ address: locationInfo }, (results, status) => {
         if (status === 'OK') {
             const location = results[0].geometry.location;
+            console.log(`[지도] 좌표 변환 성공:`, location.toString());
+            
             const map = new google.maps.Map(document.getElementById(containerId), {
                 center: location,
                 zoom: 15,
@@ -61,6 +72,8 @@ async function initMarketMap(containerId, locationInfo, businessName) {
                     { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#000000" }] }
                 ]
             });
+            
+            document.getElementById(containerId).dataset.initialized = "true";
 
             // 우리 업체 마커
             new google.maps.Marker({
@@ -74,10 +87,11 @@ async function initMarketMap(containerId, locationInfo, businessName) {
             const service = new google.maps.places.PlacesService(map);
             service.nearbySearch({
                 location: location,
-                radius: 800,
-                type: ['store', 'restaurant', 'cafe'] // 필요 시 동적 변경 가능
+                radius: 1000, // 조금 더 넓게 1km
+                type: ['store', 'restaurant', 'cafe', 'point_of_interest']
             }, (results, status) => {
                 if (status === google.maps.places.PlacesServiceStatus.OK) {
+                    console.log(`[지도] 경쟁 업체 ${results.length}곳 발견`);
                     results.forEach(place => {
                         new google.maps.Marker({
                             position: place.geometry.location,
@@ -86,8 +100,18 @@ async function initMarketMap(containerId, locationInfo, businessName) {
                             icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
                         });
                     });
+                } else {
+                    console.warn(`[지도] 경쟁 업체 검색 실패: ${status}`);
                 }
             });
+        } else {
+            console.error(`[지도] 지오코딩 실패: ${status}. 주소를 확인해 주세요.`);
+            document.getElementById(containerId).innerHTML = `
+                <div style="text-align:center; padding:20px; color:var(--system-purple);">
+                    📍 위치를 찾을 수 없습니다.<br>
+                    주소(${locationInfo})가 정확한지 확인해 주세요.
+                </div>
+            `;
         }
     });
 }
@@ -443,6 +467,7 @@ async function triggerMarketAnalysis(clientId) {
             swot: parsedReport.swot,
             four_p: parsedReport.four_p,
             conclusion: parsedReport.conclusion,
+            toolkit: parsedReport.toolkit, // ⚠️ 누락되었던 핵심 데이터 추가!
             timestamp: new Date().toISOString()
         };
 
