@@ -99,7 +99,7 @@ async function generateContent(selected, retries = 5) {
         .replace(/[\u0000-\u0009\u000B\u000C\u000E-\u001F\u007F-\u009F]/g, '')
         .replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, '')
         .replace(/\*\*|\*/g, '')
-        .replace(/([.!?])\s*/g, '$1\n\n')
+        .replace(/([!?])\s*/g, '$1\n\n') // !와 ? 뒤에만 가독성을 위한 줄바꿈 유지
         .replace(/\n\n\n+/g, '\n\n')
         .trim();
         
