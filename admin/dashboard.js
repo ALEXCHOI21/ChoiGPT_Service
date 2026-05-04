@@ -259,7 +259,7 @@ async function triggerMarketAnalysis(clientId) {
             }
         }
         GEMINI_KEY = GEMINI_KEY.trim();
-        const prompt = `당신은 대한민국 최고의 마케팅 전략가입니다. 아래 업체에 대해 실제 시장 분석을 수행하고, 구체적이고 실행 가능한 전략을 수립해 주세요.
+        const geminiPrompt = `당신은 대한민국 최고의 마케팅 전략가입니다. 아래 업체에 대해 실제 시장 분석을 수행하고, 구체적이고 실행 가능한 전략을 수립해 주세요.
 
 [업체 정보]
 - 상호명: ${client.business_name}
@@ -285,7 +285,7 @@ async function triggerMarketAnalysis(clientId) {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }] }],
+                    contents: [{ parts: [{ text: geminiPrompt }] }],
                     generationConfig: { temperature: 0.7 }
                 })
             }
