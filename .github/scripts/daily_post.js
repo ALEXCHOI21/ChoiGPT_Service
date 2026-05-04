@@ -6,7 +6,7 @@ const FB_ACCESS_TOKEN = (process.env.FB_ACCESS_TOKEN || '').trim();
 
 const themes = [
   {
-    topic: '최이지피티(ChoiGPT) 24/7 마케팅 마스터',
+    topic: '최지피티(ChoiGPT) 24/7 마케팅 마스터',
     usp: 'AI 실시간 상권 분석 및 24시간 자동 포스팅 시스템. [출시 기념 50% OFF] 1개월(Basic) 9.9만원, 2개월(Starter) 18만원. 전문가급 STP/AIDA/SWOT/4P 리포트 자동 생성. 문의: cdrhy219@gmail.com / 카톡 오픈채팅',
     weight: 100, // 최우선 홍보 가중치
     isFixedImage: true,
@@ -68,9 +68,12 @@ async function generateContent(selected, retries = 5) {
   for (let i = 0; i < retries; i++) {
     const delay = Math.pow(2, i) * 10000;
     try {
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-goog-api-key': GEMINI_API_KEY 
+        },
         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
       });
       const data = await res.json();
