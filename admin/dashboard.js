@@ -18,6 +18,15 @@ const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 // Security: Temporary Base64 encoding for passwords (Server-side vaulting recommended)
 const secureEncode = (text) => btoa(unescape(encodeURIComponent(text)));
 
+// 리포트 탭 전환 함수
+window.switchReportTab = function(tabName) {
+    document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    
+    document.getElementById(`${tabName}-tab`).style.display = 'block';
+    event.currentTarget.classList.add('active');
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Mission Control Initialized...");
     loadClients();
@@ -187,39 +196,58 @@ async function viewReport(clientId) {
         });
 
     } else {
-        const report = client.analysis_report;
-        content.innerHTML = `
-            <div class="report-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-                <section class="glass-card" style="padding: 1.5rem; border-color: rgba(0,255,240,0.2);">
-                    <h4 style="color: var(--neon-cyan); font-size: 0.75rem; letter-spacing: 0.1em; margin-bottom: 12px;">01. STP 전략</h4>
-                    <div style="font-size: 0.85rem; color: var(--text-secondary);">
-                        ${report.stp || '분석 데이터를 구성 중입니다.'}
-                    </div>
-                </section>
-                <section class="glass-card" style="padding: 1.5rem; border-color: rgba(255,100,255,0.2);">
-                    <h4 style="color: #ff64ff; font-size: 0.75rem; letter-spacing: 0.1em; margin-bottom: 12px;">02. AIDA 모델</h4>
-                    <div style="font-size: 0.85rem; color: var(--text-secondary);">
-                        ${report.aida || '콘텐츠 유입 시나리오 분석 중...'}
-                    </div>
-                </section>
-                <section class="glass-card" style="padding: 1.5rem; border-color: rgba(255,200,0,0.2);">
-                    <h4 style="color: #ffc800; font-size: 0.75rem; letter-spacing: 0.1em; margin-bottom: 12px;">03. SWOT 분석</h4>
-                    <div style="font-size: 0.85rem; color: var(--text-secondary);">
-                        ${report.swot || '강점 및 위협 요인 도출 중...'}
-                    </div>
-                </section>
-                <section class="glass-card" style="padding: 1.5rem; border-color: rgba(0,200,255,0.2);">
-                    <h4 style="color: #00c8ff; font-size: 0.75rem; letter-spacing: 0.1em; margin-bottom: 12px;">04. 4P 마케팅 믹스</h4>
-                    <div style="font-size: 0.85rem; color: var(--text-secondary);">
-                        ${report.four_p || '채널 및 가격 전략 수립 중...'}
-                    </div>
-                </section>
+        const result = client.analysis_report;
+        const reportTabs = `
+            <div class="report-tabs" style="display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px;">
+                <button class="tab-btn active" onclick="switchReportTab('strategy')">핵심 전략</button>
+                <button class="tab-btn" onclick="switchReportTab('toolkit')">마케팅 툴킷 🚀</button>
             </div>
-            <div style="margin-top: 24px; padding: 16px; background: rgba(255,255,255,0.02); border-radius: 4px;">
-                <h4 style="color: var(--neon-cyan); font-size: 0.8rem; margin-bottom: 8px;">마켓 인텔리전스 결론</h4>
-                <p style="font-size: 0.9rem; color: var(--text-primary);">${report.conclusion || '통합 분석 리포트를 확인해 주십시오.'}</p>
+            <div id="strategy-tab" class="tab-pane active">
+                <div class="report-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                    <section class="glass-card" style="padding: 1.5rem; border-color: rgba(0,255,240,0.2);">
+                        <h4 style="color: var(--neon-cyan); font-size: 0.75rem; letter-spacing: 0.1em; margin-bottom: 12px;">01. STP 전략</h4>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary);">${result.stp}</div>
+                    </section>
+                    <section class="glass-card" style="padding: 1.5rem; border-color: rgba(255,100,255,0.2);">
+                        <h4 style="color: #ff64ff; font-size: 0.75rem; letter-spacing: 0.1em; margin-bottom: 12px;">02. AIDA 모델</h4>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary);">${result.aida}</div>
+                    </section>
+                    <section class="glass-card" style="padding: 1.5rem; border-color: rgba(255,200,0,0.2);">
+                        <h4 style="color: #ffc800; font-size: 0.75rem; letter-spacing: 0.1em; margin-bottom: 12px;">03. SWOT 분석</h4>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary);">${result.swot}</div>
+                    </section>
+                    <section class="glass-card" style="padding: 1.5rem; border-color: rgba(0,200,255,0.2);">
+                        <h4 style="color: #00c8ff; font-size: 0.75rem; letter-spacing: 0.1em; margin-bottom: 12px;">04. 4P 마케팅 믹스</h4>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary);">${result.four_p}</div>
+                    </section>
+                </div>
+                <div style="margin-top: 24px; padding: 16px; background: rgba(255,255,255,0.02); border-radius: 4px;">
+                    <h4 style="color: var(--neon-cyan); font-size: 0.8rem; margin-bottom: 8px;">마켓 인텔리전스 결론</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-primary);">${result.conclusion}</p>
+                </div>
+            </div>
+            <div id="toolkit-tab" class="tab-pane" style="display:none;">
+                <div class="toolkit-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                    <div class="toolkit-card" style="padding:20px; background:rgba(255,255,255,0.03); border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+                        <h3 style="color:#FFD700; margin-bottom:15px; font-size:1rem;">📣 SNS 후킹 멘트</h3>
+                        <ul style="list-style:none; padding:0;">
+                            ${result.toolkit.hooks.map(h => `<li style="margin-bottom:12px; padding:12px; background:rgba(255,255,255,0.05); border-radius:8px; font-size:0.95rem;">${h}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="toolkit-card" style="padding:20px; background:rgba(255,255,255,0.03); border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+                        <h3 style="color:#00FFA2; margin-bottom:15px; font-size:1rem;">📅 주간 액션 플랜</h3>
+                        <ul style="list-style:none; padding:0;">
+                            ${result.toolkit.action_plan.map(p => `<li style="margin-bottom:10px; border-left:3px solid #00FFA2; padding-left:12px; font-size:0.9rem;">${p}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+                <div class="hashtag-card" style="margin-top:20px; padding:20px; background:rgba(255,255,255,0.03); border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+                    <h3 style="color:#FF00E5; margin-bottom:12px; font-size:1rem;">#️⃣ 추천 해시태그</h3>
+                    <p style="letter-spacing:1px; color:#FFB8F9; font-size:0.9rem;">${result.toolkit.hashtags}</p>
+                </div>
             </div>
         `;
+        content.innerHTML = reportTabs;
     }
 
     const closeBtn = document.querySelector('.close-modal');
@@ -276,7 +304,12 @@ async function triggerMarketAnalysis(clientId) {
   "aida": "<b>[Attention]</b> (주목을 끄는 훅 전략)<br><b>[Interest]</b> (관심 유발 방법)<br><b>[Desire]</b> (구매 욕구 촉진 방법)<br><b>[Action]</b> (구체적인 CTA 전략)",
   "swot": "<b>[Strength]</b> (내부 강점 2-3가지)<br><b>[Weakness]</b> (내부 약점 1-2가지)<br><b>[Opportunity]</b> (외부 기회 요인)<br><b>[Threat]</b> (외부 위협 요인)",
   "four_p": "<b>[Product]</b> (차별화된 서비스/상품 전략)<br><b>[Price]</b> (가격 전략)<br><b>[Place]</b> (입지/유통 전략)<br><b>[Promotion]</b> (구체적인 홍보 채널 및 방법)",
-  "conclusion": "해당 업체의 핵심 성공 전략을 한 문장으로 요약"
+  "conclusion": "해당 업체의 핵심 성공 전략을 한 문장으로 요약",
+  "toolkit": {
+    "hooks": ["후킹 멘트 1 (인스타그램용)", "후킹 멘트 2 (당근마켓용)", "후킹 멘트 3 (블로그용)"],
+    "hashtags": "#태그1 #태그2 #태그3",
+    "action_plan": ["월요일: 구체적 행동", "수요일: 구체적 행동", "금요일: 구체적 행동"]
+  }
 }`;
 
         const geminiRes = await fetch(
