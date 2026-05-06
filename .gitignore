@@ -1,0 +1,15 @@
+# Security
+.env
+*.key
+secrets.json
+
+# Local Environment
+.vscode/
+.idea/
+*.log
+
+# Build & OS
+node_modules/
+dist/
+.DS_Store
+Thumbs.db

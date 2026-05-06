@@ -35,10 +35,11 @@ window.switchReportTab = function(tabName) {
 
 // Google Maps API 동적 로드 및 지도 초기화
 async function initMarketMap(containerId, locationInfo, businessName) {
-    // 구글 맵 키 입력창 제거 (자동화)
-    let MAPS_KEY = localStorage.getItem('CHOIGPT_MAPS_KEY') || '';
+    let MAPS_KEY = localStorage.getItem('CHOIGPT_MAPS_KEY');
     if (!MAPS_KEY) {
-        console.warn('Google Maps API Key가 설정되지 않았습니다. 상권 분석 지도 기능이 제한될 수 있습니다.');
+        MAPS_KEY = prompt('Google Maps API Key가 필요합니다. (상권 분석용)\n키를 입력해 주세요:');
+        if (MAPS_KEY) localStorage.setItem('CHOIGPT_MAPS_KEY', MAPS_KEY.trim());
+        else return;
     }
 
     if (!window.google) {
