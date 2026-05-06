@@ -5,7 +5,7 @@ const SUPABASE_URL = 'https://bxtrfsjcxknmbopctvaw.supabase.co';
 // 제공된 anon public 키 적용 (자동 입력)
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ4dHJmc2pjeGtubWJvcGN0dmF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyMjAzNTAsImV4cCI6MjA4Njc5NjM1MH0.T95GvNYbpVU7um3WW2eyqikgWDn-dwsQ3zPxTM4rfhM';
 // Gemini 키도 기본값 설정 (필요시 localStorage에서 교체 가능)
-const DEFAULT_GEMINI_KEY = 'AIzaSyDePuv7Q1YPrXwomsbZtfOOvlSMCN8b6wU';
+const DEFAULT_GEMINI_KEY = 'AIzaSyBJEFlq_7_ezHHvvMzOi15ceOmoilnpNZw';
 
 // Initialize Supabase client correctly
 const { createClient } = supabase;
