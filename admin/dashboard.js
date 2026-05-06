@@ -493,4 +493,3 @@ function resetKeys() {
         location.reload();
     }
 }
-
