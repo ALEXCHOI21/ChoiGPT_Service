@@ -1,5 +1,6 @@
-// ChoiGPT B2B Platform - Dashboard Controller v2.0
-// Standardized for Obsidian Sentinel Design System
+// ChoiGPT B2B Platform - Dashboard Controller v3.2 (Cache-Bust Update)
+// Architecture: UI-Only Layer (Logic decoupled to Marketing Engine)
+// Last Update: 2026-05-07 - Forced Zero-Input Mode
 
 const SUPABASE_URL = 'https://bxtrfsjcxknmbopctvaw.supabase.co';
 // 제공된 anon public 키 적용 (자동 입력)
