@@ -1,9 +1,9 @@
 const { createClient } = require('@supabase/supabase-js');
 const fetch = require('node-fetch');
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://bxtrfsjcxknmbopctvaw.supabase.co';
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ4dHJmc2pjeGtubWJvcGN0dmF3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTIyMDM1MCwiZXhwIjoyMDg2Nzk2MzUwfQ.qt8B3P0guptrPFaU1QOPcH3HmL2lh7kbeYZAY-jRd2o';
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyAjMvMcbg-CtVuz3iJN89dga_95pT2711A';
 const MY_FB_PAGE_ID = process.env.FB_PAGE_ID_2ND; 
 const MY_FB_ACCESS_TOKEN = process.env.FB_ACCESS_TOKEN_2ND;
 

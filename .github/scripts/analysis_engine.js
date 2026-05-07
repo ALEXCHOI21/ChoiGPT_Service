@@ -1,9 +1,9 @@
 const { createClient } = require('@supabase/supabase-js');
 const fetch = require('node-fetch');
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY; // 관리자 권한 필수
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://bxtrfsjcxknmbopctvaw.supabase.co';
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ4dHJmc2pjeGtubWJvcGN0dmF3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTIyMDM1MCwiZXhwIjoyMDg2Nzk2MzUwfQ.qt8B3P0guptrPFaU1QOPcH3HmL2lh7kbeYZAY-jRd2o'; 
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyAjMvMcbg-CtVuz3iJN89dga_95pT2711A';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -94,7 +94,7 @@ async function generateGeminiReport(client, searchData) {
         }
     `;
 
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })

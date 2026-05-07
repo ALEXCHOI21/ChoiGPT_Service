@@ -3,10 +3,8 @@
 // Last Update: 2026-05-07 - Forced Zero-Input Mode
 
 const SUPABASE_URL = 'https://bxtrfsjcxknmbopctvaw.supabase.co';
-// 제공된 anon public 키 적용 (자동 입력)
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ4dHJmc2pjeGtubWJvcGN0dmF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyMjAzNTAsImV4cCI6MjA4Njc5NjM1MH0.T95GvNYbpVU7um3WW2eyqikgWDn-dwsQ3zPxTM4rfhM';
-// Gemini 키도 기본값 설정 (필요시 localStorage에서 교체 가능)
-const DEFAULT_GEMINI_KEY = 'AIzaSyBJEFlq_7_ezHHvvMzOi15ceOmoilnpNZw';
+const GEMINI_API_KEY = 'AIzaSyAjMvMcbg-CtVuz3iJN89dga_95pT2711A';
 
 // Initialize Supabase client correctly
 const { createClient } = supabase;
@@ -380,9 +378,6 @@ async function triggerMarketAnalysis(clientId) {
 
         console.log(`[마켓 인텔리전스] ${client.business_name} 분석 중...`);
 
-        // [보안] 로컬 스토리지 우선, 없을 경우 기본값(DEFAULT_GEMINI_KEY) 사용
-        let GEMINI_KEY = localStorage.getItem('CHOIGPT_GEMINI_KEY') || DEFAULT_GEMINI_KEY;
-        GEMINI_KEY = GEMINI_KEY.trim();
         const geminiPrompt = `당신은 대한민국 최고의 마케팅 전략가입니다. 아래 업체에 대해 실제 시장 분석을 수행하고, 구체적이고 실행 가능한 전략을 수립해 주세요.
 
 [업체 정보]
@@ -408,28 +403,23 @@ async function triggerMarketAnalysis(clientId) {
   }
 }`;
 
-        const geminiRes = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: geminiPrompt }] }],
-                    generationConfig: { temperature: 0.7 }
-                })
-            }
-        );
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: geminiPrompt }] }],
+                generationConfig: { temperature: 0.7 }
+            })
+        });
 
-        if (!geminiRes.ok) {
-            const errText = await geminiRes.text();
-            if (geminiRes.status === 400 || geminiRes.status === 401) {
-                localStorage.removeItem('CHOIGPT_GEMINI_KEY');
-                console.warn('[Security] Invalid Gemini Key removed from localStorage');
-            }
-            throw new Error(`Gemini API 오류 (${geminiRes.status}): ${errText}`);
+        if (!res.ok) {
+            const errText = await res.text();
+            throw new Error(`Gemini API 오류 (${res.status}): ${errText}`);
         }
 
-        const geminiData = await geminiRes.json();
+        const geminiData = await res.json();
 
         if (!geminiData.candidates || !geminiData.candidates[0]) {
             throw new Error(`Gemini 응답 없음: ${JSON.stringify(geminiData)}`);
@@ -455,7 +445,7 @@ async function triggerMarketAnalysis(clientId) {
             swot: parsedReport.swot,
             four_p: parsedReport.four_p,
             conclusion: parsedReport.conclusion,
-            toolkit: parsedReport.toolkit, // ⚠️ 누락되었던 핵심 데이터 추가!
+            toolkit: parsedReport.toolkit,
             timestamp: new Date().toISOString()
         };
 
