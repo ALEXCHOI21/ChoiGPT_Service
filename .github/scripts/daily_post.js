@@ -4,6 +4,22 @@ const IG_ACCESS_TOKEN = (process.env.IG_ACCESS_TOKEN || '').trim();
 const FB_PAGE_ID = (process.env.FB_PAGE_ID || '').trim();
 const FB_ACCESS_TOKEN = (process.env.FB_ACCESS_TOKEN || '').trim();
 
+// 환경 변수 검증 로직 추가
+function validateEnv() {
+  const missing = [];
+  if (!GEMINI_API_KEY) missing.push('GEMINI_API_KEY');
+  if (!IG_USER_ID) missing.push('IG_USER_ID');
+  if (!IG_ACCESS_TOKEN) missing.push('IG_ACCESS_TOKEN');
+  if (!FB_PAGE_ID) missing.push('FB_PAGE_ID');
+  if (!FB_ACCESS_TOKEN) missing.push('FB_ACCESS_TOKEN');
+  
+  if (missing.length > 0) {
+    console.error(`CRITICAL ERROR: Missing environment variables: ${missing.join(', ')}`);
+    console.error('Please check your GitHub Secrets or local environment variables.');
+    process.exit(1);
+  }
+}
+
 const themes = [
   {
     topic: '최지피티(ChoiGPT) 24/7 마케팅 마스터',
@@ -69,7 +85,8 @@ async function generateContent(selected, retries = 5) {
     const delay = Math.pow(2, i) * 10000;
     try {
       // 보안 강화: API 키를 URL에서 제거하고 Header(x-goog-api-key)로 전송
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`;
+      // 모델명 수정: gemini-2.5-flash -> gemini-1.5-flash-latest
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent`;
       const res = await fetch(url, {
         method: 'POST',
         headers: { 
@@ -89,7 +106,10 @@ async function generateContent(selected, retries = 5) {
       
       if (!res.ok) {
         let errorStr = JSON.stringify(data);
-        if (GEMINI_API_KEY) errorStr = errorStr.split(GEMINI_API_KEY).join('***');
+        // 모든 민감 정보 마스킹
+        [GEMINI_API_KEY, IG_ACCESS_TOKEN, FB_ACCESS_TOKEN].forEach(key => {
+          if (key) errorStr = errorStr.split(key).join('***');
+        });
         throw new Error(`Gemini Error: ${errorStr}`);
       }
       
@@ -118,7 +138,9 @@ async function generateContent(selected, retries = 5) {
     } catch (e) {
       if (i === retries - 1) throw e;
       let safeMsg = e.message;
-      if (GEMINI_API_KEY) safeMsg = safeMsg.split(GEMINI_API_KEY).join('***');
+      [GEMINI_API_KEY, IG_ACCESS_TOKEN, FB_ACCESS_TOKEN].forEach(key => {
+        if (key) safeMsg = safeMsg.split(key).join('***');
+      });
       console.log(`Retry ${i+1}/${retries} after error: ${safeMsg}`);
       await new Promise(r => setTimeout(r, delay));
     }
@@ -127,6 +149,7 @@ async function generateContent(selected, retries = 5) {
 }
 
 async function run() {
+  validateEnv(); // 실행 전 환경 변수 검증
   const totalWeight = themes.reduce((sum, t) => sum + t.weight, 0);
   let random = Math.floor(Math.random() * totalWeight);
   let selected = themes[0];
