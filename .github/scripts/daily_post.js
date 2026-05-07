@@ -68,11 +68,14 @@ async function generateContent(selected, retries = 5) {
   for (let i = 0; i < retries; i++) {
     const delay = Math.pow(2, i) * 10000;
     try {
-      // 2026년 최신 표준인 gemini-2.5-flash 모델 적용
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+      // 보안 강화: API 키를 URL에서 제거하고 Header(x-goog-api-key)로 전송
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`;
       const res = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-goog-api-key': GEMINI_API_KEY 
+        },
         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
       });
       
@@ -84,7 +87,12 @@ async function generateContent(selected, retries = 5) {
         continue;
       }
       
-      if (!res.ok) throw new Error(`Gemini Error: ${JSON.stringify(data)}`);
+      if (!res.ok) {
+        let errorStr = JSON.stringify(data);
+        if (GEMINI_API_KEY) errorStr = errorStr.split(GEMINI_API_KEY).join('***');
+        throw new Error(`Gemini Error: ${errorStr}`);
+      }
+      
       if (!data.candidates || !data.candidates[0]) throw new Error('No candidates returned from Gemini');
       
       const text = data.candidates[0].content.parts[0].text;
@@ -109,7 +117,9 @@ async function generateContent(selected, retries = 5) {
       return parsed;
     } catch (e) {
       if (i === retries - 1) throw e;
-      console.log(`Retry ${i+1}/${retries} after error: ${e.message}`);
+      let safeMsg = e.message;
+      if (GEMINI_API_KEY) safeMsg = safeMsg.split(GEMINI_API_KEY).join('***');
+      console.log(`Retry ${i+1}/${retries} after error: ${safeMsg}`);
       await new Promise(r => setTimeout(r, delay));
     }
   }
