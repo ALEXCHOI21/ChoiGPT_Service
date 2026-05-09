@@ -1,4 +1,4 @@
-const GEMINI_API_KEY = 'AIzaSyDePuv7Q1YPrXwomsbZtfOOvlSMCN8b6wU';
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 
 async function listModels() {
   console.log('Fetching available models for this API key...');

@@ -1,9 +1,7 @@
 name: B2B Client Marketing Agent (v1.0)
 
 on:
-  schedule:
-    - cron: '0 */6 * * *' # 6시간마다 자율 실행
-  workflow_dispatch: # 수동 실행 가능
+  workflow_dispatch: # 수동 실행 전용
 
 jobs:
   marketing:

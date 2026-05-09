@@ -94,15 +94,21 @@ async function generateGeminiReport(client, searchData) {
         }
     `;
 
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+            'Content-Type': 'application/json',
+            'x-goog-api-key': GEMINI_API_KEY
+        },
         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
     });
     
     const data = await res.json();
-    if (!data.candidates || !data.candidates[0]) {
-        throw new Error(`Gemini Error: ${JSON.stringify(data)}`);
+    if (!res.ok) {
+        let errorStr = JSON.stringify(data);
+        // [보안] 에러 메시지 내 API 키 마스킹
+        if (GEMINI_API_KEY) errorStr = errorStr.split(GEMINI_API_KEY).join('***');
+        throw new Error(`Gemini Error: ${errorStr}`);
     }
     const text = data.candidates[0].content.parts[0].text;
     const jsonMatch = text.replace(/```json|```/g, '').trim();
