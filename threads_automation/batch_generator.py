@@ -13,7 +13,7 @@ load_dotenv()
 # Configuration
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
 
 # ChoiGPT Cost-Control Protocol Settings
 # Using gemini-2.0-flash for maximum cost-efficiency (Free Tier)
