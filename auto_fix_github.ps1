@@ -97,7 +97,7 @@ async function generateContent(selected) {
   핵심 강점(USP): ${selected.usp}
   응답은 반드시 아래 JSON 형식으로만 출력해: { "ig_caption": "...", "fb_caption": "...", "imagePrompt": "..." }`;
   
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
