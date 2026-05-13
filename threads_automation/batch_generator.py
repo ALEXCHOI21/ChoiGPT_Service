@@ -15,9 +15,10 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
 
-# ChoiGPT Cost-Control Protocol Settings
-# Using gemini-2.0-flash for maximum cost-efficiency (Free Tier)
-GEMINI_MODEL = "gemini-2.0-flash" 
+# [ChoiGPT Stability Protocol]
+# 실험적인 2.0-flash 대신 프로덕션 안정성이 검증된 1.5-flash를 사용합니다.
+# 신규 API 키에서 2.0 모델의 할당량이 0으로 잡히는 이슈를 원천 차단합니다.
+GEMINI_MODEL = "gemini-1.5-flash" 
 MAX_POSTS_PER_BATCH = 5 # Reduced for more focused quality
 
 # Initialize Clients
@@ -40,7 +41,7 @@ SYSTEM_PROMPT = """
 - **Language**: Korean (한국어). Use technical terms in English where appropriate for tech-savviness.
 
 # [Technical Constraint]
-- **Model**: gemini-2.0-flash
+- **Model**: gemini-1.5-flash (Stable)
 - **Length**: Each post MUST be under 400 characters.
 - **Format**: Return ONLY a JSON list of objects: [{"topic": "...", "content": "..."}]
 """
@@ -56,7 +57,7 @@ def generate_daily_report(posts):
     report_content = f"""# 💎 ChoiGPT Corp. 일일 마케팅 진척 보고서
 
 > **생성 일시**: {now_str}
-> **자동화 시스템**: Threads Marketing Engine V1.0 (gemini-2.0-flash)
+> **자동화 시스템**: Threads Marketing Engine V1.1 (gemini-1.5-flash Stable)
 
 ## 📊 금일 콘텐츠 생성 요약
 - **총 생성 포스트**: {len(posts)}개
@@ -83,7 +84,7 @@ def generate_daily_report(posts):
 def generate_batch_content():
     print(f"[{datetime.datetime.now()}] Starting automated content generation...")
     
-    max_retries = 3
+    max_retries = 5
     for attempt in range(max_retries):
         try:
             # 1. Get active topics and affiliate links from Supabase
@@ -155,8 +156,9 @@ def generate_batch_content():
             
         except Exception as e:
             if "429" in str(e) and attempt < max_retries - 1:
-                wait_time = (2 ** attempt) + random.random() + 30 # Base 30s for free tier
-                print(f"Rate limit hit (429). Retrying in {wait_time:.2f}s... (Attempt {attempt + 1}/{max_retries})")
+                # Increased wait time for Free Tier (RPM/RPD reset)
+                wait_time = (2 ** attempt) * 30 + random.random() * 10 + 60 
+                print(f"Rate limit hit (429). Waiting {wait_time:.2f}s for quota reset... (Attempt {attempt + 1}/{max_retries})")
                 time.sleep(wait_time)
                 continue
             
