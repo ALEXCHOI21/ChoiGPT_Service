@@ -1,0 +1,38 @@
+name: Threads Content Generator (ChoiGPT Corp.)
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # 매일 UTC 00:00 (한국 시간 09:00) 실행
+  workflow_dispatch: # 수동 실행 가능
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r threads_automation/requirements.txt
+
+      - name: Run Batch Generator
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: python threads_automation/batch_generator.py
+
+      - name: Commit Daily Report
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add threads_automation/DAILY_REPORT.md || true
+          git commit -m "docs: auto-generate daily marketing report [skip ci]" || true
+          git push || true

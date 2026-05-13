@@ -1,0 +1,156 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "id": "e4f8d6a1-2b3c-4d5e-8f90-1a2b3c4d5e6f",
+      "name": "Every Hour Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/thread_contents?status=eq.generated&scheduled_at=lte.{{$now}}&order=scheduled_at.asc&limit=1",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_ANON_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.SUPABASE_SERVICE_ROLE_KEY}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f5e6d7c8-4a3b-2c1d-0e9f-8a7b6c5d4e3f",
+      "name": "Get Next Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$node[\"Get Next Post\"].json.length}}",
+              "operation": "notEmpty"
+            }
+          ]
+        }
+      },
+      "id": "a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6",
+      "name": "If Content Exists",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.threads.net/v1.0/me/threads",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{$node[\"Get Next Post\"].json[0].content}}\n\n📌 자세히 보기: {{$node[\"Get Next Post\"].json[0].affiliate_link}}"
+            },
+            {
+              "name": "access_token",
+              "value": "={{$env.THREADS_ACCESS_TOKEN}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b2c3d4e5-f6g7-8h9i-0j1k-l2m3n4o5p6q7",
+      "name": "Post to Threads",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [850, 200]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/thread_contents?id=eq.{{$node[\"Get Next Post\"].json[0].id}}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "status",
+              "value": "posted"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c3d4e5f6-g7h8-9i0j-k1l2-m3n4o5p6q7r8",
+      "name": "Update Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1050, 200]
+    }
+  ],
+  "connections": {
+    "Every Hour Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Next Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Next Post": {
+      "main": [
+        [
+          {
+            "node": "If Content Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Content Exists": {
+      "main": [
+        [
+          {
+            "node": "Post to Threads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post to Threads": {
+      "main": [
+        [
+          {
+            "node": "Update Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
