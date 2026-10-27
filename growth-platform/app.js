@@ -18,7 +18,7 @@ async function refresh(fill=false){snapshot=await api('dashboard');const {client
  if(fill){for(const k of ['name','description','region','address','contact','website','sample'])$('#profileForm').elements[k].value=c.profile[k]||'';$('#profileForm').elements.keywords.value=(c.profile.keywords||[]).join(', ');}
  $('#metricForm').elements.keyword.innerHTML=(c.profile.keywords||[]).map(k=>`<option>${e(k)}</option>`).join('');if(!$('#metricForm').elements.day.value)$('#metricForm').elements.day.value=new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Seoul'});
  $('#metrics').innerHTML=measurements.length?'<table><tr><th>날짜 · 키워드</th><th>출처</th><th>노출 / 클릭 / 문의</th><th>근거</th></tr>'+measurements.map(m=>`<tr><td>${e(m.day)}<br>${e(m.keyword)}</td><td>${e(m.source)}</td><td>${[m.impressions,m.clicks,m.inquiries].map(n=>n??'미측정').join(' / ')}</td><td>${e(m.note)}</td></tr>`).join('')+'</table>':'<p class="muted">아직 측정값이 없습니다. 발행 횟수를 검색 노출 수치로 표시하지 않습니다.</p>';
- const pub=API+'?action=business&id='+c.id;$('#publicLink').innerHTML=c.public_enabled?`<a href="${e(pub)}" target="_blank" rel="noopener">공개 업체 페이지 열기 ↗</a>`:'공개 전입니다.';
+ const pub=new URL('business.html',location.href);pub.searchParams.set('id',c.id);$('#publicLink').innerHTML=c.public_enabled?`<a href="${e(pub.href)}" target="_blank" rel="noopener">공유용 업체 페이지 열기 ↗</a>`:'공개 전입니다.';
  $('#connectionBadge').textContent=c.threads_name?'연결됨':'연결 전';$('#connectionName').textContent=c.threads_name?'@'+c.threads_name:'업체의 Threads를 연결하세요.';$('#connectionHint').textContent=c.threads_name?'연결 유효 기한: '+when(c.token_expires):snapshot.oauth_ready?'공식 로그인 후 발행 권한을 승인해 주세요.':'현재 Meta 앱 설정 대기입니다. 운영자 관리에서 앱 ID와 시크릿을 설정하고 콜백·권한 승인을 완료해야 합니다.';
  renderPosts();
 }
