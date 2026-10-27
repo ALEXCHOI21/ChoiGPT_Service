@@ -1,7 +1,7 @@
 const API='https://bxtrfsjcxknmbopctvaw.supabase.co/functions/v1/growth-platform';
 const $=s=>document.querySelector(s);let access='',admin='',snapshot=null;
 const e=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const labels={draft:'검토 대기',approved:'승인 완료',inflight:'발행 중',posted:'발행 완료',uncertain:'결과 확인 필요',blocked:'보류'};
+const labels={draft:'검토 대기',approved:'승인 완료',inflight:'발행 중',posted:'발행 완료',uncertain:'결과 확인 필요',blocked:'보류',archived:'보관 · 미발행'};
 const when=s=>s?new Date(s).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}):'—';
 function toast(t){$('#toast').textContent=t;$('#toast').hidden=false;clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('#toast').hidden=true,7000);}
 async function api(action,data={},credential=access){const r=await fetch(API+'?action='+action,{method:'POST',headers:{'Content-Type':'application/json','x-growth-code':credential},body:JSON.stringify(data)});const x=await r.json();if(!r.ok)throw Error(x.error||'요청 실패');return x;}
